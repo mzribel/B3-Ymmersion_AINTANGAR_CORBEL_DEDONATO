@@ -1,5 +1,8 @@
 <template>
     <div class="chat">
+        <div class="username">
+            <input v-model="username" placeholder="Entrez votre nom" />
+        </div>
         <div class="messages">
             <div v-for="(message, index) in messages" :key="index" class="message">
                 <strong>{{ message.username }}:</strong> {{ message.text }}
@@ -18,7 +21,7 @@ export default {
         return {
             messages: [],
             newMessage: '',
-            username: 'Anonyme'
+            username: ''
         };
     },
     created() {
@@ -68,5 +71,10 @@ input {
     padding: 0.5rem;
     border: 1px solid #ccc;
     width: 100%;
+}
+
+.username {
+    margin-bottom: 1rem;
+    width: 30vh;
 }
 </style>
