@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <router-view /> <!-- Affiche les vues selon le routeur -->
+    <router-view />
   </div>
 </template>
 

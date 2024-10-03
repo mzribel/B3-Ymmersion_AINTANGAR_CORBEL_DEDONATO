@@ -1,4 +1,4 @@
-// src/router/index.js
+
 import { createRouter, createWebHistory } from 'vue-router';
 import ChatView from '../views/ChatView.vue';
 

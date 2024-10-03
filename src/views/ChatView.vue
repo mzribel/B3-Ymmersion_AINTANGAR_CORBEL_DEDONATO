@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import Chat from '../components/Chat.vue'; // Importer le composant Chat
+import Chat from '../components/Chat.vue'; 
 
 export default {
     components: {

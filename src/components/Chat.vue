@@ -10,41 +10,37 @@
 </template>
 
 <script>
-import { db } from '../firebase'; // Importer Firebase Realtime Database
+import { ref, onChildAdded, push } from 'firebase/database'; 
+import { db } from '../firebase';
 
 export default {
     data() {
         return {
-            messages: [],      // Stocke les messages récupérés de la base de données
-            newMessage: '',    // Nouveau message à envoyer
-            username: 'Anonyme'  // Nom d'utilisateur par défaut
+            messages: [],
+            newMessage: '',
+            username: 'Anonyme'
         };
     },
     created() {
-        // Récupérer les messages en temps réel depuis Firebase Realtime Database
-        const messagesRef = db.ref('messages');
-
-        // Récupérer les nouveaux messages ajoutés à la base de données
-        messagesRef.on('child_added', snapshot => {
-            // Ajouter chaque message à la liste des messages
-            this.messages.push(snapshot.val());
+        const messagesRef = ref(db, 'messages');
+        onChildAdded(messagesRef, (snapshot) => {
+            const message = snapshot.val();
+            this.messages.push(message);
         });
-    },
+        
+            },
     methods: {
         sendMessage() {
             if (this.newMessage.trim() === '') return;
 
-            // Référence à l'emplacement des messages dans la Realtime Database
-            const messagesRef = db.ref('messages');
+            const messagesRef = ref(db, 'messages');
 
-            // Ajouter le message à la base de données
-            messagesRef.push({
+            push(messagesRef, {
                 text: this.newMessage,
                 username: this.username,
                 timestamp: Date.now()
             });
 
-            // Réinitialiser l'input après envoi
             this.newMessage = '';
         }
     }
