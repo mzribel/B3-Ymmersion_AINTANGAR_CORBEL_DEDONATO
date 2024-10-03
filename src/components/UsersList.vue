@@ -37,7 +37,6 @@ export default {
       });
     },
     startConversation(userId) {
-      // Déclenche l'événement pour commencer une conversation privée
       this.$emit('start-conversation', userId);
     }
   }

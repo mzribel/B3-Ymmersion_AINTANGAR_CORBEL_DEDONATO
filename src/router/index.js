@@ -1,34 +1,41 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import ChatView from '../views/ChatView.vue';
+import { getAuth } from 'firebase/auth'; 
+import ChatView from '../views/ChatView.vue'; 
 import LoginView from '../views/LoginView.vue';
-import { getAuth } from 'firebase/auth';
+import GroupChat from '../views/GroupChat.vue'; 
+
+const routes = [
+  {
+    path: '/',
+    name: 'home',
+    component: ChatView 
+  },
+  {
+    path: '/login',
+    name: 'login',
+    component: LoginView 
+  },
+  {
+    path: '/group/:groupId',
+    name: 'groupChat',
+    component: GroupChat, 
+    props: true
+  }
+];
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
-  routes: [
-    {
-      path: '/',
-      name: 'home',
-      component: ChatView,
-      meta: { requiresAuth: true }  // Protection par authentification
-    },
-    {
-      path: '/login',
-      name: 'login',
-      component: LoginView
-    }
-  ]
+  routes
 });
 
-// Navigation guard pour vérifier l'authentification
 router.beforeEach((to, from, next) => {
-  const auth = getAuth();
-  const user = auth.currentUser;
+  const auth = getAuth(); 
+  const user = auth.currentUser; 
 
-  if (to.matched.some(record => record.meta.requiresAuth) && !user) {
-    next('/login');  // Rediriger vers la page de connexion si non connecté
+  if (to.name !== 'login' && !user) {
+    next({ name: 'login' });
   } else {
-    next();  // Sinon, continuer la navigation
+    next();
   }
 });
 

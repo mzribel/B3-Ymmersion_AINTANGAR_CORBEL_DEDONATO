@@ -15,8 +15,8 @@
 </template>
 
 <script>
-import { ref, onValue, push } from 'firebase/database'; // Utilise les méthodes de Firebase
-import { db } from '../firebase'; // Base de données Firebase
+import { ref, onValue, push } from 'firebase/database';
+import { db } from '../firebase'; 
 
 export default {
   props: {
@@ -31,14 +31,13 @@ export default {
   },
   data() {
     return {
-      messages: [],  // Liste des messages de la conversation
-      newMessage: '',  // Nouveau message à envoyer
-      conversationTitle: '',  // Titre de la conversation
-      username: 'Anonyme'  // Nom d'utilisateur par défaut (à modifier selon l'authentification)
+      messages: [], 
+      newMessage: '', 
+      conversationTitle: '',
+      username: 'Anonyme' 
     };
   },
   watch: {
-    // Charger les messages à chaque fois que la conversation change
     conversationId: {
       immediate: true,
       handler(newConversationId) {
@@ -47,9 +46,8 @@ export default {
     }
   },
   methods: {
-    // Fonction pour charger les messages en fonction de la conversation sélectionnée
     async loadMessages(conversationId) {
-      this.messages = [];  // Réinitialiser les messages
+      this.messages = []; 
 
       let messagesRef;
 
@@ -61,10 +59,10 @@ export default {
         });
       } else {
         messagesRef = ref(db, `privateMessages/${conversationId}`);
-        this.conversationTitle = "Conversation privée";  // Peut être personnalisé en fonction des utilisateurs
+        this.conversationTitle = "Conversation privée"; 
       }
 
-      // Récupérer les messages en temps réel
+      
       onValue(messagesRef, (snapshot) => {
         const messages = snapshot.val();
         this.messages = [];
@@ -73,7 +71,7 @@ export default {
         }
       });
     },
-    // Envoyer un nouveau message
+    
     sendMessage() {
       if (this.newMessage.trim() === '') return;
 
@@ -90,7 +88,7 @@ export default {
         timestamp: Date.now()
       });
 
-      this.newMessage = ''; // Vider l'input
+      this.newMessage = '';
     }
   }
 };

@@ -30,7 +30,7 @@ export default {
         .then((userCredential) => {
           const user = userCredential.user;
           this.saveUserToDatabase(user);
-          this.$router.push('/');  // Rediriger vers la page d'accueil après connexion
+          this.$router.push('/'); 
         })
         .catch(error => {
           console.error('Erreur de connexion:', error);

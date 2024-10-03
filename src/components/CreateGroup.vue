@@ -23,25 +23,25 @@ export default {
     createGroup() {
       const auth = getAuth();
       const user = auth.currentUser;
-      const userId = user.uid;
+          const userId = user.uid;
 
       if (this.groupName.trim() === '') return;
 
-      // Créer le groupe dans la base de données
+      
       const groupsRef = ref(db, `groups`);
       const newGroupRef = push(groupsRef);
 
-      newGroupRef.set({
+      set(newGroupRef, {
         name: this.groupName,
         createdBy: userId,
         members: [userId]
       });
 
-      // Ajouter le groupe à l'utilisateur connecté
+      
       const userGroupsRef = ref(db, `users/${userId}/groups/${newGroupRef.key}`);
       set(userGroupsRef, { name: this.groupName });
 
-      this.groupName = '';  // Réinitialiser l'input
+      this.groupName = '';
     }
   }
 };
