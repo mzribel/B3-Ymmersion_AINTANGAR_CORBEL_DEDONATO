@@ -3,9 +3,9 @@ import { getAuth } from 'firebase/auth';
 import ChatView from '../views/MainView.vue'; 
 import LoginView from '../views/LoginView.vue';
 import GroupChat from '../views/GroupChat.vue';
-import MainView from "@/views/MainView.vue";
-import LogoutView from "@/views/LogoutView.vue";
-import RegisterView from "@/views/RegisterView.vue";
+import MainView from "../views/MainView.vue";
+import LogoutView from "../views/LogoutView.vue";
+import RegisterView from "../views/RegisterView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),

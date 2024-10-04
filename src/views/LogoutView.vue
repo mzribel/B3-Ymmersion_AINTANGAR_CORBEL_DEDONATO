@@ -1,6 +1,6 @@
 <script setup>
 import {getAuth} from "firebase/auth";
-import router from "@/router/index.js";
+import router from "../router/index";
 
 getAuth().signOut();
 router.push("/login");
