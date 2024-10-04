@@ -14,7 +14,7 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: HomeView,
+      component: ChatView,
       beforeEnter: (to, from) => {
         if (!getAuth().currentUser) {
           return '/login';
@@ -45,8 +45,14 @@ const router = createRouter({
       path: "/logout",
       name: 'logout',
       component: LogoutView
-    }
+    },
+    {
+    path: '/group/:groupId',
+    name: 'groupChat',
+    component: GroupChat,
+    props: true
+  }
   ]
 })
 
-export default router
+export default router;

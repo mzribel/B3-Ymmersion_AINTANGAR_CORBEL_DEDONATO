@@ -1,6 +1,4 @@
 <script setup>
-  import {getAuth} from "firebase/auth";
-  const auth = getAuth();
 import { RouterLink, RouterView } from 'vue-router'
 </script>
 
@@ -8,6 +6,19 @@ import { RouterLink, RouterView } from 'vue-router'
   <RouterView />
 </template>
 
-<style scoped>
 
-</style>
+
+<script>
+export default {
+  name: 'App'
+};
+</script>
+
+<!--<style scoped>-->
+<!--#app {-->
+<!--  font-family: Avenir, Helvetica, Arial, sans-serif;-->
+<!--  text-align: center;-->
+<!--  color: #2c3e50;-->
+<!--  margin-top: 60px;-->
+<!--}-->
+<!--</style>-->
