@@ -7,7 +7,6 @@
       <button type="submit">Se connecter</button>
     </form>
     <button @click="loginWithGoogle">Se connecter avec Google</button>
-    <p>Pas encore de compte ? <a href="#">Inscription</a></p>
   </div>
 </template>
 
