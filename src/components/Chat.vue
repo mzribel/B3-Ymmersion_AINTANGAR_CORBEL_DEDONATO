@@ -4,6 +4,7 @@
     <div class="messages">
       <div v-for="(message, index) in messages" :key="index" class="message">
         <strong>{{ message.senderName }}:</strong> {{ message.text }}
+        
       </div>
     </div>
     <input 
@@ -67,9 +68,10 @@ export default {
         const messages = snapshot.val();
         this.messages = [];
         for (let key in messages) {
-          this.messages.push(messages[key]);
+          this.messages.push({ ...messages[key], id: key }); // Ajoutez l'id du message ici
         }
       });
+
     },
     
     sendMessage() {
@@ -89,6 +91,42 @@ export default {
       });
 
       this.newMessage = '';
+    },
+
+    editMessage(index) {
+      this.newMessage = this.messages[index].text;
+      this.editIndex = index;
+    },
+
+    updateMessage() {
+      if (this.editIndex !== null && this.newMessage.trim() !== '') {
+        const messageId = this.messages[this.editIndex].id; 
+        const messageRef = ref(db, `groups/${this.conversationId}/messages/${messageId}`);
+
+        update(messageRef, { text: this.newMessage })
+          .then(() => {
+            console.log('Message mis à jour avec succès');
+            this.newMessage = '';
+            this.editIndex = null; 
+          })
+          .catch(error => {
+            console.error("Erreur lors de la mise à jour du message:", error);
+        });
+      }
+
+    }, 
+
+    deleteMessage(index) {
+      const messageId = this.messages[index].id; 
+      const messageRef = ref(db, `groups/${this.conversationId}/messages/${messageId}`);
+
+      remove(messageRef)
+        .then(() => {
+          console.log('Message supprimé avec succès');
+        })
+        .catch(error => {
+          console.error("Erreur lors de la suppression du message:", error);
+      });
     }
   }
 };
@@ -112,5 +150,12 @@ input {
   padding: 0.5rem;
   border: 1px solid #ccc;
   width: 100%;
+}
+button {
+  margin-left: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  width: 100px;
+  font-size: 0.8rem;
+  height: 50px;
 }
 </style>
