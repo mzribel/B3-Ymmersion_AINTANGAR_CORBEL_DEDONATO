@@ -12,22 +12,12 @@ function toggleCreateGroupForm() {
   showCreateGroupForm.value = !showCreateGroupForm.value;
 }
 
-function logout() {
-  signOut(auth)
-    .then(() => {
-      console.log('Utilisateur déconnecté');
-      window.location.href = '/login';  // Rediriger vers la page de connexion après déconnexion
-    })
-    .catch((error) => {
-      console.error('Erreur lors de la déconnexion:', error);
-    });
-}
 </script>
 
 <template>
   <div>
     <h2>Bienvenue, {{ user.displayName }}</h2>
-    <button @click="logout">Déconnexion</button>
+    <RouterLink to="/logout"><button @click="logout">Déconnexion</button></RouterLink>
     <button @click="toggleCreateGroupForm">
       {{ showCreateGroupForm ? 'Fermer' : 'Créer un nouveau groupe' }}
     </button>

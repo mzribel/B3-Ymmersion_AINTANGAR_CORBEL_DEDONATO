@@ -7,58 +7,61 @@
       <button type="submit">Se connecter</button>
     </form>
     <button @click="loginWithGoogle">Se connecter avec Google</button>
+    <p><RouterLink to="/register">Pas encore de compte ? S'inscrire</RouterLink></p>
+
   </div>
 </template>
 
-<script>
+<script setup>
 import { getAuth, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
-import { ref, set } from 'firebase/database';
+import { set } from 'firebase/database';
 import { db } from '../firebase';
+import {ref} from "vue";
+import {useRouter} from "vue-router";
 
-export default {
-  data() {
-    return {
-      email: '',
-      password: ''
-    };
-  },
-  methods: {
-    login() {
-      const auth = getAuth();
-      signInWithEmailAndPassword(auth, this.email, this.password)
-        .then((userCredential) => {
-          const user = userCredential.user;
-          this.saveUserToDatabase(user);
-          this.$router.push('/'); 
-        })
-        .catch(error => {
-          console.error('Erreur de connexion:', error);
-        });
-    },
-    loginWithGoogle() {
-      const auth = getAuth();
-      const provider = new GoogleAuthProvider();
-      signInWithPopup(auth, provider)
-        .then(result => {
-          const user = result.user;
-          this.saveUserToDatabase(user);
-          this.$router.push('/');
-        })
-        .catch(error => {
-          console.error('Erreur avec Google:', error);
-        });
-    },
-    saveUserToDatabase(user) {
-      const userRef = ref(db, `users/${user.uid}`);
-      set(userRef, {
-        uid: user.uid,
-        displayName: user.displayName || 'Utilisateur anonyme',
-        email: user.email,
-        createdAt: Date.now()
-      });
-    }
-  }
-};
+const email = ref('');
+const password = ref('')
+const router = useRouter();
+const auth = getAuth();
+
+const login = () => {
+    signInWithEmailAndPassword(auth, email.value, password.value)
+    .then((data) => {
+      console.log('Successfully logged in!');
+      console.log(auth)
+      router.push('/') // redirect to the feed
+    })
+    .catch(error => {
+      console.log(error.code)
+      alert(error.message);
+    });
+}
+
+const loginWithGoogle = () => {
+  const auth = getAuth();
+  const provider = new GoogleAuthProvider();
+  signInWithPopup(auth, provider)
+    .then(result => {
+      const user = result.user;
+      saveUserToDatabase(user);
+      this.$router.push('/');
+    })
+    .catch(error => {
+      console.error('Erreur avec Google:', error);
+    });
+}
+
+// Todo : MOVE TO COMPOSABLES
+function saveUserToDatabase(user) {
+  const userRef = ref(db, `users/${user.uid}`);
+  set(userRef, {
+    uid: user.uid,
+    displayName: user.displayName || 'Utilisateur anonyme',
+    email: user.email,
+    createdAt: Date.now()
+  });
+}
+
 </script>
 
 <style scoped>
