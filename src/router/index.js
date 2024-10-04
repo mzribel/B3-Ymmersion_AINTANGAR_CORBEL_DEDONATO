@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import { getAuth } from 'firebase/auth'; 
-import ChatView from '../views/ChatView.vue'; 
+import ChatView from '../views/MainView.vue'; 
 import LoginView from '../views/LoginView.vue';
 import GroupChat from '../views/GroupChat.vue'; 
 
