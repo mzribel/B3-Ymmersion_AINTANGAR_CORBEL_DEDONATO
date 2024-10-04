@@ -38,9 +38,6 @@ export default {
       });
 
       
-      const userGroupsRef = ref(db, `users/${userId}/groups/${newGroupRef.key}`);
-      set(userGroupsRef, { name: this.groupName });
-
       this.groupName = '';
     }
   }
