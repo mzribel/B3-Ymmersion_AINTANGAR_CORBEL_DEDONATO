@@ -30,7 +30,7 @@ export default {
       
       const groupsRef = ref(db, `groups`);
       const newGroupRef = push(groupsRef);
-
+      
       set(newGroupRef, {
         name: this.groupName,
         createdBy: userId,

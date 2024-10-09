@@ -124,8 +124,6 @@ export default {
     editMessage(index) {
       const message = this.messages[index];
       const messageRef = ref(db, `groups/${this.groupId}/messages/${message.id}`);
-
-      // Étape 1: Modifier le texte du message
       const newText = prompt('Modifier le message :', message.text);
 
       if (newText && newText.trim() !== '') {

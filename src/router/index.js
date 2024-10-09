@@ -3,7 +3,6 @@ import { getAuth } from 'firebase/auth';
 import ChatView from '../views/ChatView.vue'; 
 import LoginView from '../views/LoginView.vue';
 import GroupChat from '../views/GroupChat.vue'; 
-
 const routes = [
   {
     path: '/',
@@ -20,7 +19,15 @@ const routes = [
     name: 'groupChat',
     component: GroupChat, 
     props: true
-  }
+  },
+    {
+      path: '/conversation/:id',
+      name: 'Chat',
+      component: () => import('../components/Chat.vue'), // Le composant pour l'affichage des messages
+      props: true // Permet de passer l'ID comme prop
+    }
+    
+  
 ];
 
 const router = createRouter({

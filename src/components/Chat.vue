@@ -4,20 +4,38 @@
     <div class="messages">
       <div v-for="(message, index) in messages" :key="index" class="message">
         <strong>{{ message.senderName }}:</strong> {{ message.text }}
+
+        <img v-if="message.fileUrl" :src="message.fileUrl" alt="Image" width="100" />
+        <button class="crud" @click="editMessage(index)">Modifier</button>
+        <button class="crud" @click="deleteMessage(index)">Supprimer</button>
         
       </div>
     </div>
-    <input 
-      v-model="newMessage" 
-      @keyup.enter="sendMessage" 
-      placeholder="Tapez votre message..." 
-    />
+    <div class="input-container">
+      <div class="input-wrapper">
+        <input type="file" @change="handleFileUpload" />
+
+        <input 
+          v-model="newMessage" 
+          @keyup.enter="sendMessage" 
+          placeholder="Tapez votre message..." 
+        />
+        <button 
+          @click="sendMessage()" 
+          class="spacing">
+          <span>Envoyer</span>
+        </button>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 import { ref, onValue, push } from 'firebase/database';
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
+
 import { db } from '../firebase'; 
+import { getAuth } from 'firebase/auth';
 
 export default {
   props: {
@@ -35,7 +53,8 @@ export default {
       messages: [], 
       newMessage: '', 
       conversationTitle: '',
-      username: 'Anonyme' 
+      username: 'Anonyme',
+      selectedFile: null
     };
   },
   watch: {
@@ -68,14 +87,30 @@ export default {
         const messages = snapshot.val();
         this.messages = [];
         for (let key in messages) {
-          this.messages.push({ ...messages[key], id: key }); // Ajoutez l'id du message ici
+          this.messages.push({ ...messages[key], id: key }); 
         }
       });
 
     },
     
+    handleFileUpload(event) {
+      const file = event.target.files[0];
+      if (file) {
+        this.selectedFile = file;
+        console.log("Fichier sélectionné :", file);
+      }
+    },
+
     sendMessage() {
-      if (this.newMessage.trim() === '') return;
+      if (this.newMessage.trim() === '' && !this.selectedFile) return;
+
+      const auth = getAuth();
+      const user = auth.currentUser;
+      const messageData = {
+        text: this.newMessage.trim(),
+        senderName: user.displayName || 'Anonyme',
+        timestamp: Date.now(),
+      };
 
       let messagesRef;
       if (this.isGroup) {
@@ -84,13 +119,30 @@ export default {
         messagesRef = ref(db, `privateMessages/${this.conversationId}`);
       }
 
-      push(messagesRef, {
-        text: this.newMessage,
-        sender: this.username,
-        timestamp: Date.now()
-      });
+      if (this.selectedFile) {
+        const storage = getStorage();
+        const fileRef = storageRef(storage, `uploads/${this.selectedFile.name}`);
 
-      this.newMessage = '';
+        uploadBytes(fileRef, this.selectedFile)
+          .then(() => getDownloadURL(fileRef))
+          .then((downloadURL) => {
+            messageData.fileUrl = downloadURL;  
+            if (!this.newMessage.trim()) {
+              delete messageData.text;
+            }
+            return push(messagesRef, messageData);
+          })
+          .then(() => {
+            this.newMessage = '';
+            this.selectedFile = null;  
+          })
+          .catch((error) => {
+            console.error("Erreur lors du téléchargement du fichier :", error);
+          });
+      } else if (this.newMessage.trim() !== '') {
+        push(messagesRef, messageData);
+        this.newMessage = '';  
+      }
     },
 
     editMessage(index) {
@@ -146,10 +198,16 @@ export default {
 .message {
   margin: 0.5rem 0;
 }
-input {
+/* input {
   padding: 0.5rem;
   border: 1px solid #ccc;
   width: 100%;
+} */
+input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  width: 60%;
+  margin: 10px 0;
 }
 button {
   margin-left: 0.5rem;
@@ -158,4 +216,15 @@ button {
   font-size: 0.8rem;
   height: 50px;
 }
+.input-wrapper {
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+  align-items: center;
+}
+.spacing {
+  margin: 10px;
+  width: 70px;
+}
+
 </style>
