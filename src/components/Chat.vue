@@ -31,7 +31,7 @@
 </template>
 
 <script>
-import { ref, onValue, push } from 'firebase/database';
+import { ref, onValue, push, update, remove } from 'firebase/database';
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 import { db } from '../firebase'; 
@@ -54,7 +54,8 @@ export default {
       newMessage: '', 
       conversationTitle: '',
       username: 'Anonyme',
-      selectedFile: null
+      selectedFile: null,
+      editIndex: null, 
     };
   },
   watch: {
@@ -146,39 +147,72 @@ export default {
     },
 
     editMessage(index) {
-      this.newMessage = this.messages[index].text;
-      this.editIndex = index;
-    },
+      const message = this.messages[index];
+      const newText = prompt('Modifier le message :', message.text);
+      let messageRef;
 
-    updateMessage() {
-      if (this.editIndex !== null && this.newMessage.trim() !== '') {
-        const messageId = this.messages[this.editIndex].id; 
-        const messageRef = ref(db, `groups/${this.conversationId}/messages/${messageId}`);
+      if (newText && newText.trim() !== '') {
+        if (this.isGroup) {
+          messageRef = ref(db, `groups/${this.conversationId}/messages/${message.id}`);
+        } else {
+          messageRef = ref(db, `privateMessages/${this.conversationId}/${message.id}`);
+        }
 
-        update(messageRef, { text: this.newMessage })
+        update(messageRef, { text: newText })
           .then(() => {
-            console.log('Message mis à jour avec succès');
-            this.newMessage = '';
-            this.editIndex = null; 
+            console.log("Message modifié avec succès");
           })
-          .catch(error => {
-            console.error("Erreur lors de la mise à jour du message:", error);
-        });
+          .catch((error) => {
+            console.error("Erreur lors de la modification du message :", error);
+          });
       }
 
-    }, 
+      // Gestion de l'édition du fichier
+      const fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.accept = 'image/*';
+      fileInput.onchange = (event) => {
+        const file = event.target.files[0];
+        if (file) {
+          const storage = getStorage();
+          const fileRef = storageRef(storage, `uploads/${file.name}`);
+          uploadBytes(fileRef, file)
+            .then((snapshot) => {
+              console.log("Fichier téléchargé avec succès :", snapshot);
+              return getDownloadURL(fileRef);
+            })
+            .then((downloadURL) => {
+              update(messageRef, { fileUrl: downloadURL });
+            })
+            .catch((error) => {
+              console.error("Erreur lors du téléchargement du fichier :", error);
+            });
+        }
+      };
+      fileInput.click();
+    },
 
     deleteMessage(index) {
       const messageId = this.messages[index].id; 
-      const messageRef = ref(db, `groups/${this.conversationId}/messages/${messageId}`);
+      let messageRef;
 
-      remove(messageRef)
-        .then(() => {
-          console.log('Message supprimé avec succès');
-        })
-        .catch(error => {
-          console.error("Erreur lors de la suppression du message:", error);
-      });
+      if (this.isGroup) {
+        messageRef = ref(db, `groups/${this.conversationId}/messages/${messageId}`);
+      } else {
+        messageRef = ref(db, `privateMessages/${this.conversationId}/${messageId}`);
+      }
+
+      const isConfirmed = confirm('Voulez-vous vraiment supprimer ce message ?');
+
+      if (isConfirmed) {
+        remove(messageRef)
+          .then(() => {
+            console.log('Message supprimé avec succès');
+          })
+          .catch((error) => {
+            console.error("Erreur lors de la suppression du message:", error);
+          });
+      }
     }
   }
 };
