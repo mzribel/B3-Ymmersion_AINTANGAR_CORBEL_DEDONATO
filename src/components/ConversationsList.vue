@@ -7,9 +7,10 @@
         <button @click="toggleGroupMembers(group.id)">
           {{ group.showMembers ? 'Masquer les membres' : 'Afficher les membres' }}
         </button>
-        <button @click="addPersonToGroup(group.id)">Ajouter une personne</button>
-        <button @click="deleteGroup(group.id)">Supprimer</button>
-
+        <div v-if="group.createdBy === user.uid">
+          <button @click="addPersonToGroup(group.id)">Ajouter une personne</button>
+          <button @click="deleteGroup(group.id)">Supprimer</button>
+        </div>
         <MembersList v-if="group.showMembers" :groupId="group.id" />
       </li>
     </ul>
@@ -39,6 +40,7 @@ export default {
   },
   created() {
     const auth = getAuth();
+    // const user = auth.currentUser;
 
     onAuthStateChanged(auth, (user) => {
       if (user) {

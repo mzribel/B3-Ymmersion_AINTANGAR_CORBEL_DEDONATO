@@ -101,12 +101,12 @@ export default {
       const user = auth.currentUser;
       const messageData = {
         text: this.newMessage.trim(),
-        username: user.displayName || 'Anonyme',
+        username: user.displayName|| 'Anonyme',
         userId: user.uid,
         timestamp: Date.now(),
       };
-
       const messagesRef = ref(db, `groups/${this.groupId}/messages`);
+
       if (this.selectedFile && this.addingFile) {
         const storage = getStorage();
         const fileRef = storageRef(storage, `uploads/${this.selectedFile.name}`);
