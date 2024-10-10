@@ -3,30 +3,42 @@
     <h2>Groupe : {{ groupName }}</h2>
     <div class="messages">
       <div v-for="(message, index) in messages" :key="index" class="message">
-        <strong>{{ message.username }}:</strong> {{ message.text }}
-        
-        <img v-if="message.fileUrl" :src="message.fileUrl" alt="Image" width="100" />
-        <button class="crud" @click="editMessage(index)">Modifier</button>
-        <button class="crud" @click="deleteMessage(index)">Supprimer</button>
+        <div v-if="message.userId === myUid" class="my-message-line">
+          <strong>: {{ message.username }}</strong>
+          <span>{{ message.text }}</span>
+          <img v-if="message.fileUrl" :src="message.fileUrl" alt="Image" width="100" />
+          <button @click="editMessage(index)">Modifier</button>
+          <button @click="deleteMessage(index)">Supprimer</button>
+        </div>
+        <div v-else class="other-message-line">
+          <strong>{{ message.username }} :</strong>
+          <span>{{ message.text }}</span>
+          <img v-if="message.fileUrl" :src="message.fileUrl" alt="Image" width="100" />
+        </div>
       </div>
     </div>
     <div class="input-container">
       <div class="input-wrapper">
-        <input type="file" @change="handleFileUpload" />
-        <input 
-          v-model="newMessage" 
-          @keyup.enter="sendMessage" 
-          placeholder="Tapez votre message ici..." 
-          class="message-input"
-        />
-        <button 
-        @click="sendMessage()" 
-        class="spacing">
-        <span>Envoyer</span>
+        <div class="inline">
+          <input
+              v-model="newMessage"
+              @keyup.enter="sendMessage"
+              placeholder="Tapez votre message ici..."
+              class="message-input"
+          />
+          <button
+              @click="addingFile = !addingFile"
+              class="spacing">
+            <span v-if="!addingFile">Ajouter un fichier</span>
+            <span v-else>Annuler l'ajout de fichier</span>
+          </button>
+        </div>
+        <input v-if="addingFile" type="file" @change="handleFileUpload" />
+        <button @click="sendMessage()" class="spacing">
+          <span>Envoyer</span>
         </button>
       </div>
     </div>
-
   </div>
 </template>
 
@@ -43,20 +55,25 @@ export default {
       newMessage: '',
       groupName: '',
       groupId: '',
-      selectedFile: null
+      addingFile: false,
+      selectedFile: null,
+      myUid: ''
     };
   },
   created() {
     const auth = getAuth();
     const user = auth.currentUser;
 
+    if (user) {
+      this.myUid = user.uid;
+    }
+
     this.groupId = this.$route.params.groupId;
 
-    
     const messagesRef = ref(db, `groups/${this.groupId}/messages`);
     onValue(messagesRef, (snapshot) => {
       const data = snapshot.val();
-      this.messages = []; 
+      this.messages = [];
       if (data) {
         Object.keys(data).forEach((key) => {
           this.messages.push({ ...data[key], id: key });
@@ -69,7 +86,6 @@ export default {
       const data = snapshot.val();
       this.groupName = data ? data.name : 'Groupe inconnu';
     });
-
   },
   methods: {
     handleFileUpload(event) {
@@ -77,7 +93,7 @@ export default {
       if (file) {
         this.selectedFile = file;
         console.log("Fichier sélectionné :", file);
-      }    
+      }
     },
 
     sendMessage() {
@@ -91,35 +107,34 @@ export default {
       };
 
       const messagesRef = ref(db, `groups/${this.groupId}/messages`);
-      if (this.selectedFile) {
+      if (this.selectedFile && this.addingFile) {
         const storage = getStorage();
         const fileRef = storageRef(storage, `uploads/${this.selectedFile.name}`);
 
         uploadBytes(fileRef, this.selectedFile)
-          .then((snapshot) => {
-            console.log("Fichier téléchargé avec succès :", snapshot);
-            return getDownloadURL(fileRef);
-          })
-          .then((downloadURL) => {
-            messageData.fileUrl = downloadURL; 
-            if (!this.newMessage.trim()) {
-              delete messageData.text;
-            }
-            return push(messagesRef, messageData);
-          })
-          .then(() => {
-            this.newMessage = '';
-            this.selectedFile = null;
-          })
-          .catch((error) => {
-            console.error("Erreur lors du téléchargement du fichier :", error);
-          });
+            .then((snapshot) => {
+              console.log("Fichier téléchargé avec succès :", snapshot);
+              return getDownloadURL(fileRef);
+            })
+            .then((downloadURL) => {
+              messageData.fileUrl = downloadURL;
+              if (!this.newMessage.trim()) {
+                delete messageData.text;
+              }
+              return push(messagesRef, messageData);
+            })
+            .then(() => {
+              this.newMessage = '';
+              this.selectedFile = null;
+            })
+            .catch((error) => {
+              console.error("Erreur lors du téléchargement du fichier :", error);
+            });
       } else if (this.newMessage.trim() !== '') {
-          push(messagesRef, messageData)
-          this.newMessage = '';
-        }
+        push(messagesRef, messageData);
+        this.newMessage = '';
+      }
     },
-
 
     editMessage(index) {
       const message = this.messages[index];
@@ -135,66 +150,52 @@ export default {
           console.error("Erreur lors de la modification du message :", error);
         });
       }
-      const fileInput = document.createElement('input');
-      fileInput.type = 'file';
-      fileInput.accept = 'image/*';
-      fileInput.onchange = (event) => {
-        const file = event.target.files[0];
-        if (file) {
-          const storage = getStorage();
-          const fileRef = storageRef(storage, `uploads/${file.name}`);
-          uploadBytes(fileRef, file)
-            .then((snapshot) => {
-              console.log("Fichier téléchargé avec succès :", snapshot);
-              return getDownloadURL(fileRef);
-            })
-            .then((downloadURL) => {
-              update(messageRef, { fileUrl: downloadURL });
-            })
-            .catch((error) => {
-              console.error("Erreur lors du téléchargement du fichier :", error);
-            });
-        }
-      };
-      fileInput.click();
+      if (message.fileUrl) {
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.accept = 'image/*';
+        fileInput.onchange = (event) => {
+          const file = event.target.files[0];
+          if (file) {
+            const storage = getStorage();
+            const fileRef = storageRef(storage, `uploads/${file.name}`);
+            uploadBytes(fileRef, file)
+                .then((snapshot) => {
+                  console.log("Fichier téléchargé avec succès :", snapshot);
+                  return getDownloadURL(fileRef);
+                })
+                .then((downloadURL) => {
+                  update(messageRef, {fileUrl: downloadURL});
+                })
+                .catch((error) => {
+                  console.error("Erreur lors du téléchargement du fichier :", error);
+                });
+          }
+        };
+        fileInput.click();
+      }
     },
 
     deleteMessage(index) {
       const message = this.messages[index];
       const isConfirmed = confirm('Voulez-vous vraiment supprimer ce message ?');
 
-      console.log("Message à supprimer :", message); 
-
       if (!message || !message.id) {
         console.error("ID du message est manquant !");
-        return; 
+        return;
       }
-      console.log("Référence pour suppression :", `groups/${this.groupId}/messages/${message.id}`); // Log avant suppression
 
       if (isConfirmed) {
         const messageRef = ref(db, `groups/${this.groupId}/messages/${message.id}`);
         remove(messageRef)
-          .then(() => {
-            console.log("Message supprimé avec succès");
-          })
-          .catch((error) => {
-            console.error("Erreur lors de la suppression du message :", error);
-          });
+            .then(() => {
+              console.log("Message supprimé avec succès");
+            })
+            .catch((error) => {
+              console.error("Erreur lors de la suppression du message :", error);
+            });
       }
     },
-
-
-    updateMessages(snapshot) {
-      const data = snapshot.val();
-      this.messages = []; 
-
-      if (data) {
-        Object.keys(data).forEach((key) => {
-          this.messages.push({ ...data[key], id: key });
-        });
-      }
-    }
-
   }
 };
 </script>
@@ -214,6 +215,8 @@ export default {
 
 .message {
   margin: 0.5rem 0;
+  display: flex; /* Utiliser flex pour les messages */
+  flex-direction: column; /* Disposition verticale */
 }
 
 input {
@@ -222,12 +225,30 @@ input {
   width: 60%;
   margin: 10px 0;
 }
+
 .spacing {
   margin: 10px;
   width: 70px;
 }
-.crud {
-  margin: 10px;
+
+.my-message-line {
+  display: flex;
+  align-items: center;
+  flex-direction: row-reverse; /* Alignement à droite */
+  background-color: #e1f5fe; /* Couleur de fond pour le message de l'utilisateur */
+  border-radius: 10px;
+  padding: 10px;
+  margin: 5px 0; /* Espacement entre les messages */
+}
+
+.other-message-line {
+  display: flex;
+  align-items: center;
+  flex-direction: row; /* Alignement à gauche */
+  background-color: #fff3e0; /* Couleur de fond pour les messages des autres */
+  border-radius: 10px;
+  padding: 10px;
+  margin: 5px 0; /* Espacement entre les messages */
 }
 
 .input-wrapper {
@@ -237,4 +258,9 @@ input {
   align-items: center;
 }
 
+.inline {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+}
 </style>

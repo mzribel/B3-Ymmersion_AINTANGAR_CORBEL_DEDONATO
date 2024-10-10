@@ -100,6 +100,10 @@ export default {
             personId = key;
             break;
           }
+          else if (users[key].username === personEmail) {
+            personId = key;
+            break;
+          }
         }
 
         if (personId) {
