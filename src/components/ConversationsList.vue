@@ -3,7 +3,7 @@
     <h3>Vos Groupes</h3>
     <ul>
       <li v-for="group in groups" :key="group.id">
-        <router-link :to="`/group/${group.id}`">{{ group.name }}</router-link>
+        <router-link :to="`/chat/${group.id}`">{{ group.name }}</router-link>
         <button @click="toggleGroupMembers(group.id)">
           {{ group.showMembers ? 'Masquer les membres' : 'Afficher les membres' }}
         </button>

@@ -26,8 +26,7 @@ const login = () => {
     signInWithEmailAndPassword(auth, email.value, password.value)
     .then((data) => {
       console.log('Successfully logged in!');
-      console.log(auth)
-      router.push('/') // redirect to the feed
+      router.push('/chat') // redirect to the feed
     })
     .catch(error => {
       console.log(error.code)
@@ -41,8 +40,7 @@ const loginWithGoogle = () => {
   signInWithPopup(auth, provider)
     .then(result => {
       console.log('Successfully logged in!');
-      console.log(auth)
-      router.push('/') // redirect to the feed
+      router.push('/chat') // redirect to the feed
     })
     .catch(error => {
       console.log(error.code)
