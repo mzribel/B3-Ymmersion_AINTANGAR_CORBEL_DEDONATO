@@ -4,14 +4,14 @@
     <div class="messages">
       <div v-for="(message, index) in messages" :key="index" class="message">
         <div v-if="message.userId === myUid" class="my-message-line">
-          <strong>: {{ message.username }}</strong>
+          <strong>: {{ message.displayName }}</strong>
           <span>{{ message.text }}</span>
           <img v-if="message.fileUrl" :src="message.fileUrl" alt="Image" width="100" />
           <button @click="editMessage(index)">Modifier</button>
           <button @click="deleteMessage(index)">Supprimer</button>
         </div>
         <div v-else class="other-message-line">
-          <strong>{{ message.username }} :</strong>
+          <strong>{{ message.displayName }} :</strong>
           <span>{{ message.text }}</span>
           <img v-if="message.fileUrl" :src="message.fileUrl" alt="Image" width="100" />
         </div>
@@ -101,7 +101,7 @@ export default {
       const user = auth.currentUser;
       const messageData = {
         text: this.newMessage.trim(),
-        username: user.email,
+        displayName: user.email,
         userId: user.uid,
         timestamp: Date.now(),
       };

@@ -15,7 +15,7 @@ const newMessage = ref("");
 const chatTitle = ref("Nouveau Groupe")
 const members = ref([]);
 const isPrivate = ref(false);
-const username = ref("Prout");
+const displayName = ref("Prout");
 
 const user = inject("user")
 

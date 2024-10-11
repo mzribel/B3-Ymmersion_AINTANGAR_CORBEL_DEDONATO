@@ -4,12 +4,12 @@ import {getAuth, onAuthStateChanged} from "firebase/auth";
 
 const UserComposable = () => {
 
-    const CreateUserData = (data) => {
+    const CreateUserData = (data, displayName) => {
         let uid = data.user.uid;
         const userRef = ref(db, `users/${uid}`);
         set(userRef, {
             createdAt: Date.now(),
-            username: data.user.displayName ? data.user.displayName : "",
+            displayName: displayName ? displayName : "est",
             email: data.user.email,
             uid: data.user.uid
         }).then();

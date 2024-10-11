@@ -36,7 +36,7 @@ export default {
       messages: [], 
       newMessage: '', 
       conversationTitle: '',
-      username: 'Anonyme' 
+      displayName: 'Anonyme'
     };
   },
   watch: {
@@ -87,7 +87,7 @@ export default {
 
       push(messagesRef, {
         text: this.newMessage,
-        sender: this.username,
+        sender: this.displayName,
         timestamp: Date.now()
       });
 

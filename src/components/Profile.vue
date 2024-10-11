@@ -29,7 +29,7 @@
         {{ isModifying ? 'Annuler' : 'Modifier le profil' }}
       </button>
 
-      <button v-if="isModifying" @click="updateUserProfile">Mettre à jour</button>
+      <button v-if="isModifying" @click="updateConfirmation">Enregistrer</button>
     </div>
 
     <p v-if="loading">Chargement du profil...</p>
@@ -60,6 +60,11 @@ const {
 } = profileComposable(props.userUid);
 
 const isModifying = ref(false);
+
+const updateConfirmation = () => {
+  updateUserProfile();
+  toggleModification();
+};
 
 const toggleModification = () => {
   isModifying.value = !isModifying.value;
