@@ -4,15 +4,33 @@ import {getAuth, onAuthStateChanged} from "firebase/auth";
 
 const UserComposable = () => {
 
-    const CreateUserData = (data, displayName) => {
+    const CreateUserData = async (data, displayName) => {
+        const email = data.user.email;
+        if (await CheckUserExists(email)) {
+            console.log("User already exists");
+            return;
+        }
         let uid = data.user.uid;
         const userRef = ref(db, `users/${uid}`);
         set(userRef, {
             createdAt: Date.now(),
-            displayName: displayName ? displayName : "est",
-            email: data.user.email,
+            displayName: displayName ? displayName : "anonyme",
+            email: email,
             uid: data.user.uid
         }).then();
+    }
+
+    const CheckUserExists = async (email) => {
+        const usersRef = ref(db, 'users');
+        return await get(usersRef).then(snapshot => {
+            const users = snapshot.val();
+            for (let key in users) {
+                if (users[key].email === email) {
+                    return true;
+                }
+            }
+            return false;
+        });
     }
 
     const GetUserByEmail = async (email) => {
