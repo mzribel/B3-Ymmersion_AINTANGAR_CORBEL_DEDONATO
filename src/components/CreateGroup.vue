@@ -35,6 +35,7 @@ export default {
         name: this.groupName,
         createdBy: userId,
         members: [userId]
+
       });
 
       

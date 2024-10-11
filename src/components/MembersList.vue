@@ -4,6 +4,7 @@
     <ul v-if="members.length > 0">
       <li v-for="member in members" :key="member.id">
         {{ member.displayName || member.email }}
+        <button>DELETE</button>
       </li>
     </ul>
     <p v-if="loading">Chargement des membres...</p>

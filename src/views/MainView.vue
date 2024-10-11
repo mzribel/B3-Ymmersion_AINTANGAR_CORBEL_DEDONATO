@@ -27,6 +27,7 @@ function toggleCreateGroupForm() {
     <ConversationsList />
   </div>
   <Profile :userUid="user.uid" />
+  
 </template>
 
 <style scoped>
@@ -38,4 +39,5 @@ button {
   margin-bottom: 1rem;
   display: block;
 }
+
 </style>

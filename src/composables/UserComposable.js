@@ -15,12 +15,26 @@ const UserComposable = () => {
         }).then();
     }
 
+    const GetUserByEmail = async (email) => {
+      const usersRef = ref(db, 'users');
+      let userid = null;
+      return await get(usersRef).then(snapshot => {
+          const users = snapshot.val();
+          for (let key in users) {
+              if (users[key].email === email) {
+                  return users[key].uid;
+              }
+          }
+          return null;
+        });
+    }
+
     const GetCurrentUser = () => {
         return getAuth().currentUser;
     }
 
-    const GetCurrentUserData = async (userID) => {
-        if (!getAuth().currentUser) {
+    const GetUserByID = async (userID) => {
+        if (!userID) {
             return null;
         }
         ;
@@ -38,7 +52,7 @@ const UserComposable = () => {
       });
     }
 
-    return { CreateUserData, GetCurrentUser, GetCurrentUserData, GetAsyncUser };
+    return { GetUserByID, CreateUserData, GetCurrentUser, GetCurrentUserData: GetUserByID, GetAsyncUser, GetUserByEmail };
 }
 export default UserComposable;
 
