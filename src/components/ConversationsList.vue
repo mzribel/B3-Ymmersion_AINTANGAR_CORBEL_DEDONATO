@@ -7,9 +7,10 @@
         <button @click="toggleGroupMembers(group.id)">
           {{ group.showMembers ? 'Masquer les membres' : 'Afficher les membres' }}
         </button>
-        <button @click="addUserToGroup(group.id)">Ajouter une personne</button>
-        <button @click="deleteGroup(group.id)">Supprimer</button>
-
+        <div v-if="group.createdBy === user.uid">
+          <button @click="addPersonToGroup(group.id)">Ajouter une personne</button>
+          <button @click="deleteGroup(group.id)">Supprimer</button>
+        </div>
         <MembersList v-if="group.showMembers" :groupId="group.id" />
       </li>
     </ul>
@@ -21,12 +22,11 @@
 </template>
 
 <script>
-import {ref, onValue, set, push, get, update} from 'firebase/database';
+import { ref, onValue, set, push, get } from 'firebase/database';
 import { db } from '../firebase';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import MembersList from './MembersList.vue'; 
-import UserComposable  from "../composables/UserComposable.js"
-const { GetUserByEmail } = UserComposable();
+
 export default {
   components: {
     MembersList,
@@ -79,7 +79,6 @@ export default {
     });
   },
   methods: {
-
     toggleGroupMembers(groupId) {
       this.groups = this.groups.map(group => {
         if (group.id === groupId) {
@@ -89,35 +88,53 @@ export default {
       });
     },
 
-    addUserToGroup(groupId) {
+    addPersonToGroup(groupId) {
       const personEmail = prompt('Entrez l\'adresse e-mail de la personne à ajouter:');
       if (!personEmail) return;
 
+      const usersRef = ref(db, 'users');
       let personId = null;
-      // Retrouver l'ID utilisateur par l'email
-      GetUserByEmail(personEmail).then((result) => {
-        personId = result;
 
-        if (!personId) {
-          alert("Membre non trouvable");
-          return;
+      get(usersRef).then(snapshot => {
+        const users = snapshot.val();
+        for (let key in users) {
+          if (users[key].email === personEmail) {
+            personId = key;
+            break;
+          }
+          else if (users[key].displayName === personEmail) {
+            personId = key;
+            break;
+          }
         }
 
-        const membersRef = ref(db, `groups/${groupId}/members/`);
-        get(membersRef).then((snapshot) => {
-          let userList = Object.values(snapshot.val());
-          if (userList.includes(personId)) {
-            alert("Membre déjà membre lol");
-            return;
+        if (personId) {
+          const groupMembersRef = ref(db, `groups/${groupId}/members/`);
+
+          for (let group of this.groups) {
+            if (group.id === groupId) {
+              if (group.members.find(m => m.id === personId)) {
+                alert('Personne déjà membre du groupe.');
+                return;
+              }
+            }
           }
 
-          userList.push(personId);
-          update(ref(db, `groups/${groupId}/`), {members: userList}).then(() => {
-            alert('Groupe mis à jour');
+          push(groupMembersRef, personId).then(() => {
+            alert('Personne ajoutée au groupe.' + personId);
+          }).catch(error => {
+            alert(`Erreur lors de l'ajout de la personne au groupe : ${error.message}`);
           });
-        })
-      })
+
+        } else {
+          alert('Utilisateur non trouvé.');
+        }
+
+      }).catch(error => {
+        alert(`Erreur lors de la recherche de l'utilisateur: ${error.message}`);
+      });
     },
+
     deleteGroup(groupId) {
       if (confirm('Voulez-vous vraiment supprimer ce groupe?')) {
         const groupRef = ref(db, `groups/${groupId}`);

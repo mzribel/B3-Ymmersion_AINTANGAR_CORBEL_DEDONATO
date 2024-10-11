@@ -4,7 +4,7 @@
     <ul>
       <li v-for="user in users" :key="user.id">
         <a @click="startConversation(user.id)">
-          {{ user.username }}
+          {{ user.displayName }}
         </a>
       </li>
     </ul>
@@ -32,7 +32,7 @@ export default {
         const usersData = snapshot.val();
         this.users = [];
         for (let key in usersData) {
-          this.users.push({ id: key, username: usersData[key].username });
+          this.users.push({ id: key, displayName: usersData[key].displayName });
         }
       });
     },
