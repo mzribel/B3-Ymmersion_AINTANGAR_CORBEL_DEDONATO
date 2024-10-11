@@ -70,7 +70,7 @@ export default {
 
     this.groupId = this.$route.params.groupId;
 
-    const messagesRef = ref(db, `groups/${this.groupId}/messages`);
+    const messagesRef = ref(db, `conversations/${this.groupId}/messages`);
     onValue(messagesRef, (snapshot) => {
       const data = snapshot.val();
       this.messages = [];
@@ -81,7 +81,7 @@ export default {
       }
     });
 
-    const groupRef = ref(db, `groups/${this.groupId}`);
+    const groupRef = ref(db, `conversations/${this.groupId}`);
     onValue(groupRef, (snapshot) => {
       const data = snapshot.val();
       this.groupName = data ? data.name : 'Groupe inconnu';
@@ -105,7 +105,7 @@ export default {
         userId: user.uid,
         timestamp: Date.now(),
       };
-      const messagesRef = ref(db, `groups/${this.groupId}/messages`);
+      const messagesRef = ref(db, `conversations/${this.groupId}/messages`);
 
       if (this.selectedFile && this.addingFile) {
         const storage = getStorage();
@@ -141,7 +141,7 @@ export default {
       const newText = prompt('Modifier le message :', message.text);
 
       if (newText && newText.trim() !== '') {
-        const messageRef = ref(db, `groups/${this.groupId}/messages/${message.id}`);
+        const messageRef = ref(db, `conversations/${this.groupId}/messages/${message.id}`);
         update(messageRef, {
           text: newText
         }).then(() => {
@@ -186,7 +186,7 @@ export default {
       }
 
       if (isConfirmed) {
-        const messageRef = ref(db, `groups/${this.groupId}/messages/${message.id}`);
+        const messageRef = ref(db, `conversations/${this.groupId}/messages/${message.id}`);
         remove(messageRef)
             .then(() => {
               console.log("Message supprimé avec succès");

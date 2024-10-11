@@ -19,7 +19,7 @@ fetchGroupMembers(chatID.value);
 
 async function fetchGroupMembers(groupId) {
     try {
-      const groupMembersRef = fbRef(db, `groups/${groupId}/members`);
+      const groupMembersRef = fbRef(db, `conversations/${groupId}/members`);
       // Récupérer la liste des membres du groupe
       onValue(groupMembersRef, async (snapshot) => {
         const data = snapshot.val();

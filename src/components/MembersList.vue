@@ -39,7 +39,7 @@ export default {
   methods: {
     async fetchGroupMembers(groupId) {
       try {
-        const groupMembersRef = ref(db, `groups/${groupId}/members`);
+        const groupMembersRef = ref(db, `conversations/${groupId}/members`);
 
         onValue(groupMembersRef, async (snapshot) => {
           const data = snapshot.val();

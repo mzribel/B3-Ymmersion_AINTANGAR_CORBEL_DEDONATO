@@ -54,8 +54,8 @@ export default {
       let messagesRef;
 
       if (this.isGroup) {
-        messagesRef = ref(db, `groups/${conversationId}/messages`);
-        const groupTitleRef = ref(db, `groups/${conversationId}/name`);
+        messagesRef = ref(db, `conversations/${conversationId}/messages`);
+        const groupTitleRef = ref(db, `conversations/${conversationId}/name`);
         onValue(groupTitleRef, (snapshot) => {
           this.conversationTitle = snapshot.val();
         });
@@ -80,7 +80,7 @@ export default {
 
       let messagesRef;
       if (this.isGroup) {
-        messagesRef = ref(db, `groups/${this.conversationId}/messages`);
+        messagesRef = ref(db, `conversations/${this.conversationId}/messages`);
       } else {
         messagesRef = ref(db, `privateMessages/${this.conversationId}`);
       }
@@ -102,7 +102,7 @@ export default {
     updateMessage() {
       if (this.editIndex !== null && this.newMessage.trim() !== '') {
         const messageId = this.messages[this.editIndex].id; 
-        const messageRef = ref(db, `groups/${this.conversationId}/messages/${messageId}`);
+        const messageRef = ref(db, `conversations/${this.conversationId}/messages/${messageId}`);
 
         update(messageRef, { text: this.newMessage })
           .then(() => {
@@ -119,7 +119,7 @@ export default {
 
     deleteMessage(index) {
       const messageId = this.messages[index].id; 
-      const messageRef = ref(db, `groups/${this.conversationId}/messages/${messageId}`);
+      const messageRef = ref(db, `conversations/${this.conversationId}/messages/${messageId}`);
 
       remove(messageRef)
         .then(() => {

@@ -39,7 +39,7 @@ const user = inject("user");
 onAuthStateChanged(getAuth(), async (u) => {
   conversationList.value = await GetUserConversations(u.uid);
 
-  onValue(fbRef(db, "groups/"), async () => {
+  onValue(fbRef(db, "conversations/"), async () => {
     conversationList.value = await GetUserConversations(u.uid);
   })
 })

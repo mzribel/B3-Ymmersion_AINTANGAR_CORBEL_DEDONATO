@@ -9,13 +9,13 @@ const ChatComposable = () => {
     // Récupère une conversation par son ID
     const GetConversationByID = async (conversationID = "") => {
         if (!conversationID) { return null; }
-        const groupRef = ref(db, `groups/${conversationID}`);
+        const groupRef = ref(db, `conversations/${conversationID}`);
         return await (await get(groupRef)).val();
     }
 
     // Récupère toutes les conversations
     const GetAllConversations = async () => {
-        const conversationRef = ref(db, `groups/`);
+        const conversationRef = ref(db, `conversations/`);
         return (await get(conversationRef)).val();
     }
 
@@ -47,12 +47,14 @@ const ChatComposable = () => {
             console.log("Le MP existe déjà : "+users)
             return Object.keys(pm)[0];
         }
-        const conversationRef = ref(db, `groups/`);
+        const conversationRef = ref(db, `conversations/`);
         const newConversationRef = push(conversationRef);
         console.log(newConversationRef)
         await set(newConversationRef, {
             members: users,
-            isPrivate: true
+            isPrivate: true,
+            createdAt: null,
+            lastUpdateAt: null,
         });
         console.log("MP crée avec succès : "+users)
         return newConversationRef.key;
@@ -61,13 +63,15 @@ const ChatComposable = () => {
     // Crée une conversation de groupe
     // Todo : pour l'instant, elle est vide et il faut la peupler après-coup
     const CreateGroupConversation = async (ownerID, groupName="") => {
-        const conversationRef = ref(db, `groups/`);
+        const conversationRef = ref(db, `conversations/`);
         const newGroupRef = push(conversationRef);
         await set(newGroupRef, {
             groupName: groupName ? groupName.trim() : "",
             ownerID: ownerID,
             members: [ownerID],
-            isPrivate: false
+            isPrivate: false,
+            createdAt: Date.now(),
+            lastUpdateAt: Date.now(),
         });
     }
 
@@ -82,7 +86,7 @@ const ChatComposable = () => {
             console.log("Impossible de supprimer une conversation privée")
             return;
         }
-        remove(ref(db, `groups/${groupID}`)).then(()=> {
+        remove(ref(db, `conversations/${groupID}`)).then(()=> {
             console.log("Groupe supprimé avec succès")
         });
     }
@@ -111,7 +115,7 @@ const ChatComposable = () => {
         }
 
         memberList.push(newUserID);
-        update(ref(db, `groups/${groupID}/`), {members: memberList}).then(() => {
+        update(ref(db, `conversations/${groupID}/`), {members: memberList}).then(() => {
             console.log("Groupe mis à jour")
         });
     }
@@ -135,13 +139,13 @@ const ChatComposable = () => {
             return member !== userID
         });
 
-        update(ref(db, `groups/${groupID}/`), {members: memberList}).then(() => {
+        update(ref(db, `conversations/${groupID}/`), {members: memberList}).then(() => {
             console.log("Groupe mis à jour")
         });
     }
 
     const GetUserConversations = async (userID) => {
-        const conversations = (await get(ref(db, `groups/`))).val();
+        const conversations = (await get(ref(db, `conversations/`))).val();
         if (!conversations) { return null; }
 
         let userConversations = [];
