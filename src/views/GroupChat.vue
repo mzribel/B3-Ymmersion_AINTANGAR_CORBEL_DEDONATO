@@ -105,8 +105,8 @@ export default {
         userId: user.uid,
         timestamp: Date.now(),
       };
-
       const messagesRef = ref(db, `groups/${this.groupId}/messages`);
+
       if (this.selectedFile && this.addingFile) {
         const storage = getStorage();
         const fileRef = storageRef(storage, `uploads/${this.selectedFile.name}`);
