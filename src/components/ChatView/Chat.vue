@@ -8,9 +8,8 @@ const route = useRoute()
 
 const chatID = ref(route.params.groupId);
 const props = defineProps({
-  userID: {type: String, required: true},
   conversationTitle: {type: String, required: false},
-  conversationMessages: {type: Array, required: false},
+  conversationMessages: {type: Object, required: true},
   conversationMembers: {type: Array, required: false},
 })
 
@@ -20,9 +19,6 @@ const messages = ref([]);
 const newMessage = ref("");
 const chatTitle = ref("Nouveau Groupe")
 const members = ref([]);
-const isPrivate = ref(false);
-const username = ref("Prout");
-
 const user = inject("user")
 
 watch(() => route.params.groupId, () => {
@@ -41,19 +37,13 @@ async function loadMessages(conversationId) {
 
       let messagesRef;
 
-      if (props.isPrivate) {
-        messagesRef = fbRef(db, `groups/${conversationId}/messages`);
-        const groupTitleRef = fbRef(db, `groups/${conversationId}/name`);
-        onValue(groupTitleRef, (snapshot) => {
-          chatTitle.value = snapshot.val();
-        });
-      } else {
-        messagesRef = fbRef(db, `privateMessages/${conversationId}`);
-        const groupTitleRef = get(fbRef(db, `groups/${conversationId}/name`));
-        chatTitle.value = "";
-      }
+      // const groupTitleRef = fbRef(db, `groups/${conversationId}/name`);
+      // onValue(groupTitleRef, (snapshot) => {
+      //   chatTitle.value = snapshot.val();
+      // });
 
 
+      messagesRef = fbRef(db, `groups/${conversationId}/messages`);
       onValue(messagesRef, (snapshot) => {
         const messagesSnap = snapshot.val();
         messages.value = [];
@@ -76,12 +66,7 @@ async function loadMessages(conversationId) {
     function sendMessage() {
       if (newMessage.value.trim() === '') return;
 
-      let messagesRef;
-      if (props.isPrivate) {
-        messagesRef = fbRef(db, `groups/${chatID.value}/messages`);
-      } else {
-        messagesRef = fbRef(db, `privateMessages/${chatID.value}`);
-      }
+      let messagesRef = fbRef(db, `groups/${chatID.value}/messages`);
 
       push(messagesRef, {
         text: newMessage.value,

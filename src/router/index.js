@@ -58,12 +58,20 @@ const router = createRouter({
       path: '/chat',
       name: 'chat',
       component: ChatView,
+      beforeEnter: (async (to, from)=> {
+        const currentUser = await GetAsyncUser();
+        if (!currentUser) { return "/login" }
+      })
 
     },
     {
       path: '/chat/:groupId',
       name: 'chatID',
-      component: ChatView
+      component: ChatView,
+      beforeEnter: (async (to, from)=> {
+        const currentUser = await GetAsyncUser();
+        if (!currentUser) { return "/login" }
+      })
     },
   ]
 });
