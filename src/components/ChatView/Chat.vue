@@ -13,8 +13,6 @@ const props = defineProps({
   conversationMembers: {type: Array, required: false},
 })
 
-
-
 const messages = ref([]);
 const newMessage = ref("");
 const chatTitle = ref("Nouveau Groupe")
@@ -37,13 +35,13 @@ async function loadMessages(conversationId) {
 
       let messagesRef;
 
-      // const groupTitleRef = fbRef(db, `groups/${conversationId}/name`);
+      // const groupTitleRef = fbRef(db, `conversations/${conversationId}/name`);
       // onValue(groupTitleRef, (snapshot) => {
       //   chatTitle.value = snapshot.val();
       // });
 
 
-      messagesRef = fbRef(db, `groups/${conversationId}/messages`);
+      messagesRef = fbRef(db, `conversations/${conversationId}/messages`);
       onValue(messagesRef, (snapshot) => {
         const messagesSnap = snapshot.val();
         messages.value = [];
@@ -52,7 +50,7 @@ async function loadMessages(conversationId) {
         }
       });
 
-      let membersRef = fbRef(db, `groups/${conversationId}/members`);
+      let membersRef = fbRef(db, `conversations/${conversationId}/members`);
       onValue(membersRef, (snapshot) => {
         const membersSnap = snapshot.val();
         members.value = [];
@@ -66,7 +64,7 @@ async function loadMessages(conversationId) {
     function sendMessage() {
       if (newMessage.value.trim() === '') return;
 
-      let messagesRef = fbRef(db, `groups/${chatID.value}/messages`);
+      let messagesRef = fbRef(db, `conversations/${chatID.value}/messages`);
 
       push(messagesRef, {
         text: newMessage.value,

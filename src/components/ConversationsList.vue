@@ -44,7 +44,7 @@ export default {
 
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        const groupsRef = ref(db, 'groups');
+        const groupsRef = ref(db, 'conversations');
 
         onValue(groupsRef, (snapshot) => {
           const data = snapshot.val();
@@ -109,7 +109,7 @@ export default {
         }
 
         if (personId) {
-          const groupMembersRef = ref(db, `groups/${groupId}/members/`);
+          const groupMembersRef = ref(db, `conversations/${groupId}/members/`);
 
           for (let group of this.groups) {
             if (group.id === groupId) {
@@ -137,7 +137,7 @@ export default {
 
     deleteGroup(groupId) {
       if (confirm('Voulez-vous vraiment supprimer ce groupe?')) {
-        const groupRef = ref(db, `groups/${groupId}`);
+        const groupRef = ref(db, `conversations/${groupId}`);
         set(groupRef, null);
       }
     }
