@@ -40,21 +40,19 @@ export default {
     async fetchGroupMembers(groupId) {
       try {
         const groupMembersRef = ref(db, `groups/${groupId}/members`);
-        
-        // Récupérer la liste des membres du groupe
+
         onValue(groupMembersRef, async (snapshot) => {
           const data = snapshot.val();
           if (data) {
-            const memberIds = Object.values(data);  // Récupérer les IDs des membres
+            const memberIds = Object.values(data);
 
-            // Parcourir chaque membre et récupérer les infos associées
             this.members = await Promise.all(memberIds.map(async (uid) => {
               const userRef = ref(db, `users/${uid}`);
               const userSnapshot = await get(userRef);
               return userSnapshot.val();
             }));
           } else {
-            this.members = [];  // Aucun membre trouvé
+            this.members = [];
           }
           this.loading = false;
         }, (error) => {

@@ -40,6 +40,7 @@ export default {
   },
   created() {
     const auth = getAuth();
+    // const user = auth.currentUser;
 
     onAuthStateChanged(auth, (user) => {
       if (user) {
