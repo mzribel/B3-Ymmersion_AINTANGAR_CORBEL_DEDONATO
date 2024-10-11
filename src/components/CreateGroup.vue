@@ -1,10 +1,7 @@
 <template>
   <div class="create-group">
     <h3>Créer un Groupe</h3>
-    <form @submit.prevent="CreateGroupConversation(user.uid, groupName)">
-      <input v-model="groupName" type="text" placeholder="Nom du groupe" required />
-      <button type="submit">Créer</button>
-    </form>
+
   </div>
 </template>
 

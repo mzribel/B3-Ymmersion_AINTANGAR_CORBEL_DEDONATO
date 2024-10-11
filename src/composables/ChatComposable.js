@@ -49,7 +49,6 @@ const ChatComposable = () => {
         }
         const conversationRef = ref(db, `conversations/`);
         const newConversationRef = push(conversationRef);
-        console.log(newConversationRef)
         await set(newConversationRef, {
             members: users,
             isPrivate: true,
@@ -120,6 +119,21 @@ const ChatComposable = () => {
         });
     }
 
+    const RenameGroup = async (groupID, newName) => {
+        const conversation = await GetConversationByID(groupID);
+        if (!conversation) {
+            console.log("La conversation n'existe pas")
+            return;
+        } else if (conversation.isPrivate) {
+            console.log("Impossible de renommer une conversation privée")
+            return;
+        }
+
+        update(ref(db, `conversations/${groupID}/`), {groupName: newName}).then(() => {
+            console.log("Groupe mis à jour")
+        });
+    }
+
     const DeleteUserFromGroupConversation = async (groupID, userID) => {
         const conversation = await GetConversationByID(groupID);
         if (!conversation) {
@@ -161,6 +175,7 @@ const ChatComposable = () => {
                 });
             }
             conversations[key].members = members;
+            Object.assign(conversations[key], {isOwner: conversations[key].ownerID == userID})
             Object.assign(conversations[key], {uid: key})
             userConversations.push(conversations[key]);
         }
@@ -176,7 +191,8 @@ const ChatComposable = () => {
         DeleteGroupConversation,
         AddUserToGroupConversation,
         DeleteUserFromGroupConversation,
-        GetUserConversations
+        GetUserConversations,
+        RenameGroup
         // Todo : UpdateGroupConversation
     }
 }
