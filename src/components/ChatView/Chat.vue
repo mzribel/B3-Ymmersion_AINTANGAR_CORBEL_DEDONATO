@@ -3,13 +3,19 @@ import {ref as fbRef, onValue, push, get} from 'firebase/database';
 import { db } from '../../firebase';
 import {watch, ref, onMounted, inject} from "vue";
 import {useRoute} from "vue-router";
+const route = useRoute()
 
+
+const chatID = ref(route.params.groupId);
 const props = defineProps({
-  userID: {type: String, required: true}
+  userID: {type: String, required: true},
+  conversationTitle: {type: String, required: false},
+  conversationMessages: {type: Array, required: false},
+  conversationMembers: {type: Array, required: false},
 })
 
-const route = useRoute()
-const chatID = ref(route.params.groupId);
+
+
 const messages = ref([]);
 const newMessage = ref("");
 const chatTitle = ref("Nouveau Groupe")

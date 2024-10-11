@@ -1,23 +1,30 @@
 <script setup>
-
-import ConversationsList from '../components/ConversationsList.vue';
-import CreateGroup from '../components/CreateGroup.vue';
-import UsersList from "../components/UsersList.vue";
-import Chat from '../components/ChatView/Chat.vue';
-import ChatTony from '../components/Chat.vue';
+import ConversationsList from '../components/ChatView/ConversationsList.vue';
 import {inject, ref, watch} from "vue";
 import {useRoute} from "vue-router";
-import UserComposable from "../composables/UserComposable.js";
+import ChatComposable from "../composables/ChatComposable.js";
 import MemberList from "../components/ChatView/MemberList.vue";
-import UserList from "../components/ChatView/UserList.vue";
+import UserList from "../components/ChatView/AllUsers.vue";
+const { GetConversationByID } = ChatComposable();
 
 const route = useRoute();
 const user = inject("user");
 
+
+const conversation = ref(null);
 const chatID = ref(route.params.groupId);
+loadConversationData();
+
 watch(() => route.params, () => {
     chatID.value = route.params.groupId;
+    loadConversationData();
 })
+
+async function loadConversationData() {
+  GetConversationByID(chatID.value).then((result) => {
+      conversation.value = result;
+  })
+}
 
 </script>
 
@@ -27,7 +34,6 @@ watch(() => route.params, () => {
     <ConversationsList></ConversationsList>
   </div>
   <template v-if="chatID">
-      <Chat :chat-i-d="chatID" user-i-d="user.uid"></Chat>
       <MemberList :group-i-d="chatID"></MemberList>
   </template>
   <template v-else>

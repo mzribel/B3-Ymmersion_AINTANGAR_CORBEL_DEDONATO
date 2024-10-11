@@ -42,6 +42,16 @@ const UserComposable = () => {
         return (await get(userRef)).val();
     }
 
+
+    const GetAllUsers = async (currentUserID = null) => {
+        const userRef = ref(db, `users/`);
+        return await get(userRef).then(snapshot => {
+            const users = snapshot.val();
+            if (!users) { return null; }
+            return users;
+        })
+    }
+
     async function GetAsyncUser(){
       return new Promise((resolve, reject) => {
         const auth = getAuth();
@@ -50,9 +60,14 @@ const UserComposable = () => {
           resolve(user);
         }, reject);
       });
+
+
     }
 
-    return { GetUserByID, CreateUserData, GetCurrentUser, GetCurrentUserData: GetUserByID, GetAsyncUser, GetUserByEmail };
+
+
+    return { GetAllUsers, GetUserByID, CreateUserData, GetCurrentUser, GetCurrentUserData: GetUserByID, GetAsyncUser, GetUserByEmail };
+
 }
 export default UserComposable;
 

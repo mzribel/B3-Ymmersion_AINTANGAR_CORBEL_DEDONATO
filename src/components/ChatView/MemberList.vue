@@ -18,16 +18,13 @@ const chatID = ref(route.params.groupId);
 fetchGroupMembers(chatID.value);
 
 async function fetchGroupMembers(groupId) {
-  console.log(groupId)
     try {
       const groupMembersRef = fbRef(db, `groups/${groupId}/members`);
       // Récupérer la liste des membres du groupe
       onValue(groupMembersRef, async (snapshot) => {
         const data = snapshot.val();
-        console.log(data)
         if (data) {
           const memberIds = Object.values(data);  // Récupérer les IDs des membres
-          console.log('hi')
           // Parcourir chaque membre et récupérer les infos associées
           members.value = await Promise.all(memberIds.map(async (uid) => {
             const userRef = fbRef(db, `users/${uid}`);

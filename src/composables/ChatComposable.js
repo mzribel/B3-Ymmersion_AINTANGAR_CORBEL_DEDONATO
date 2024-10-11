@@ -30,7 +30,7 @@ const ChatComposable = () => {
             for (let key of Object.keys(conversations)) {
                 if (conversations[key].isPrivate &&
                     conversations[key].members.sort().toString() == users.sort().toString()) {
-                    return conversations[key];
+                    return {[key]: conversations[key]};
                 }
             }
             return null;
@@ -42,17 +42,20 @@ const ChatComposable = () => {
         if (!users || users.length != 2) {
             return;
         }
-        if (await GetPrivateConversationBetweenUsers(users)) {
+        const pm = await GetPrivateConversationBetweenUsers(users)
+        if (pm) {
             console.log("Le MP existe déjà : "+users)
-            return;
+            return Object.keys(pm)[0];
         }
         const conversationRef = ref(db, `groups/`);
         const newConversationRef = push(conversationRef);
+        console.log(newConversationRef)
         await set(newConversationRef, {
             members: users,
             isPrivate: true
         });
         console.log("MP crée avec succès : "+users)
+        return newConversationRef.key;
     }
 
     // Crée une conversation de groupe
@@ -137,6 +140,28 @@ const ChatComposable = () => {
         });
     }
 
+    const GetUserConversations = async (userID) => {
+        const conversations = (await get(ref(db, `groups/`))).val();
+        if (!conversations) { return null; }
+
+        let userConversations = [];
+        for (let key of Object.keys(conversations)) {
+            if (!conversations[key].members.includes(userID)) { continue }
+
+            let members = [];
+            for (const member of conversations[key].members) {
+                await GetUserByID(member).then(result => {
+                    if (result) {
+                        members.push(result);
+                    }
+                });
+            }
+            conversations[key].members = members;
+            userConversations[key] = conversations[key];
+        }
+        console.log(userConversations)
+    }
+
     return {
         GetConversationByID,
         GetAllConversations,
@@ -145,7 +170,8 @@ const ChatComposable = () => {
         CreateGroupConversation,
         DeleteGroupConversation,
         AddUserToGroupConversation,
-        DeleteUserFromGroupConversation
+        DeleteUserFromGroupConversation,
+        GetUserConversations
         // Todo : UpdateGroupConversation
     }
 }
