@@ -48,8 +48,7 @@ export const profileComposable = (userUid) => {
             const storageReference = storageRef(storage, `profile_photos/${userUid}`);
             try {
                 await uploadBytes(storageReference, file);
-                const photoURL = await getDownloadURL(storageReference);
-                profile.value.photoURL = photoURL;
+                profile.value.photoURL = await getDownloadURL(storageReference);
             } catch (error) {
                 errorMessage.value = `Erreur lors de l'upload de la photo : ${error.message}`;
             }
