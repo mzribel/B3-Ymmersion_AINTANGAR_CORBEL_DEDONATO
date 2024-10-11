@@ -84,7 +84,7 @@ const UserComposable = () => {
 
 
 
-    return { GetAllUsers, GetUserByID, CreateUserData, GetCurrentUser, GetCurrentUserData: GetUserByID, GetAsyncUser, GetUserByEmail };
+    return { GetAllUsers, GetUserByID, CreateUserData, GetCurrentUser, GetCurrentUserData: GetUserByID, GetAsyncUser, GetUserByEmail, CheckUserExists };
 
 }
 export default UserComposable;
