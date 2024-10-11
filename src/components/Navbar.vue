@@ -3,8 +3,6 @@ import {RouterLink} from "vue-router";
 import { inject } from 'vue';
 
 const user = inject('user');
-console.log("user = ", user);
-
 </script>
 
 <template>
@@ -20,6 +18,7 @@ console.log("user = ", user);
             <RouterLink v-if="!user" to="/register">Register</RouterLink>
           </template>
           <template v-else>
+            <div>{{ user.email }}</div>
             <RouterLink v-if="user" to="/logout">Logout</RouterLink>
           </template>
         </div>
