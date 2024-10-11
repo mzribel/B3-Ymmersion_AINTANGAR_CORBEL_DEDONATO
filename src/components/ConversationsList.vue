@@ -102,7 +102,7 @@ export default {
             personId = key;
             break;
           }
-          else if (users[key].username === personEmail) {
+          else if (users[key].displayName === personEmail) {
             personId = key;
             break;
           }
