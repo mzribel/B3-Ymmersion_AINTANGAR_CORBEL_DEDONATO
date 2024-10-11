@@ -157,9 +157,10 @@ const ChatComposable = () => {
                 });
             }
             conversations[key].members = members;
-            userConversations[key] = conversations[key];
+            Object.assign(conversations[key], {uid: key})
+            userConversations.push(conversations[key]);
         }
-        console.log(userConversations)
+        return userConversations
     }
 
     return {
