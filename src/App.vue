@@ -9,7 +9,7 @@ import UserComposable from "./composables/UserComposable.js"
 import Navbar from "./components/Navbar.vue";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 
-const { GetCurrentUserData } = UserComposable();
+const { GetCurrentUserData, GetAllUsers } = UserComposable();
 
 const user = ref();
 provide("user", user)

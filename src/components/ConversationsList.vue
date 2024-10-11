@@ -53,7 +53,7 @@ export default {
               .filter(key => {
                 const group = data[key];
 
-                const isCreator = group.createdBy === user.uid;
+                const isCreator = group.ownerId === user.uid;
                 const isMember = group.members && Object.values(group.members).includes(user.uid);
 
                 return isCreator || isMember;

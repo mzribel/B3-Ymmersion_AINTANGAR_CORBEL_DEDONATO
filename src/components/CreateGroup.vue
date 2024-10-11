@@ -1,48 +1,24 @@
 <template>
   <div class="create-group">
     <h3>Créer un Groupe</h3>
-    <form @submit.prevent="createGroup">
+    <form @submit.prevent="CreateGroupConversation(user.uid, groupName)">
       <input v-model="groupName" type="text" placeholder="Nom du groupe" required />
       <button type="submit">Créer</button>
     </form>
   </div>
 </template>
 
-<script>
-import { ref, push, set } from 'firebase/database';
+<script setup>
+import { ref as fbRef, push, set } from 'firebase/database';
 import { db } from '../firebase';
 import { getAuth } from 'firebase/auth';
+import ChatComposable from "../composables/ChatComposable.js"
+import {inject, ref} from "vue";
+const { CreateGroupConversation } = ChatComposable();
+const user = inject("user");
 
-export default {
-  data() {
-    return {
-      groupName: ''
-    };
-  },
-  methods: {
-    createGroup() {
-      const auth = getAuth();
-      const user = auth.currentUser;
-          const userId = user.uid;
 
-      if (this.groupName.trim() === '') return;
-
-      
-      const groupsRef = ref(db, `groups`);
-      const newGroupRef = push(groupsRef);
-
-      set(newGroupRef, {
-        name: this.groupName,
-        createdBy: userId,
-        members: [userId]
-
-      });
-
-      
-      this.groupName = '';
-    }
-  }
-};
+const groupName = ref("");
 </script>
 
 <style scoped>
