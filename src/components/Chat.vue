@@ -3,7 +3,7 @@
     <h2>{{ conversationTitle }}</h2>
     <div class="messages">
       <div v-for="(message, index) in messages" :key="index" class="message">
-        <strong>{{ message.senderName }}:</strong> {{ message.text }}
+        <strong>{{ message.sender }}:</strong> {{ message.text }}
         
       </div>
     </div>
@@ -18,6 +18,7 @@
 <script>
 import { ref, onValue, push } from 'firebase/database';
 import { db } from '../firebase'; 
+
 
 export default {
   props: {

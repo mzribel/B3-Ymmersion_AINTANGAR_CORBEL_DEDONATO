@@ -101,7 +101,7 @@ export default {
       const user = auth.currentUser;
       const messageData = {
         text: this.newMessage.trim(),
-        username: user.displayName|| 'Anonyme',
+        username: user.email,
         userId: user.uid,
         timestamp: Date.now(),
       };

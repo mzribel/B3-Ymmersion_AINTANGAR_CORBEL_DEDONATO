@@ -1,19 +1,31 @@
 <script setup>
-
 import {RouterLink} from "vue-router";
+import { inject } from 'vue';
+
+const user = inject('user');
+console.log("user = ", user);
+
 </script>
 
 <template>
   <header>
       <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/login">Login</RouterLink>
-        <RouterLink to="/register">Register</RouterLink>
-        <RouterLink to="/logout">Logout</RouterLink>
+        <div class="left">
+          <RouterLink to="/">Home</RouterLink>
+          <RouterLink to="/chat">Chat</RouterLink>
+        </div>
+        <div class="right">
+          <template v-if="!user">
+            <RouterLink v-if="!user" to="/login">Login</RouterLink>
+            <RouterLink v-if="!user" to="/register">Register</RouterLink>
+          </template>
+          <template v-else>
+            <RouterLink v-if="user" to="/logout">Logout</RouterLink>
+          </template>
+        </div>
       </nav>
   </header>
 </template>
 
 <style scoped>
-
 </style>
