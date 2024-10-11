@@ -5,8 +5,7 @@ import {watch, ref, onMounted, inject} from "vue";
 import {useRoute} from "vue-router";
 
 const props = defineProps({
-  userID: {type: String, required: true},
-  isPrivate: {type: Boolean, default: false},
+  userID: {type: String, required: true}
 })
 
 const route = useRoute()
@@ -35,7 +34,6 @@ async function loadMessages(conversationId) {
       members.value = [];
 
       let messagesRef;
-
 
       if (props.isPrivate) {
         messagesRef = fbRef(db, `groups/${conversationId}/messages`);
@@ -101,7 +99,6 @@ async function loadMessages(conversationId) {
 
         </div>
       </div>
-                {{ members }}
     </div>
     <input
       v-model="newMessage"
