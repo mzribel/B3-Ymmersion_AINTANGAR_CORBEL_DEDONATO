@@ -7,7 +7,7 @@ export const profileComposable = (userUid) => {
     const profile = ref(null);
     const loading = ref(true);
     const errorMessage = ref('');
-    const defaultPhoto = 'https://via.placeholder.com/100';
+    const defaultPhoto = 'https://t4.ftcdn.net/jpg/06/59/13/31/360_F_659133125_S0VAnb5NNknokdB47K61zDsczWgZJTMf.jpg';
 
     const fetchUserProfile = async () => {
         try {

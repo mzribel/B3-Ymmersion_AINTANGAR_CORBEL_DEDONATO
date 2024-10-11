@@ -10,7 +10,6 @@
 
     <button @click="loginWithGoogle">Se connecter avec Google</button>
 
-
     <p><RouterLink to="/register">Pas encore de compte ? S'inscrire</RouterLink></p>
   </div>
 </template>
@@ -19,6 +18,9 @@
 import { getAuth, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, sendPasswordResetEmail } from 'firebase/auth';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import UserComposable from '../composables/UserComposable.js';
+
+const { CreateUserData, CheckUserExists } = UserComposable();
 
 const email = ref('');
 const password = ref('');
@@ -36,25 +38,27 @@ const login = () => {
       });
 };
 
-const loginWithGoogle = () => {
+const loginWithGoogle = async () => {
   const provider = new GoogleAuthProvider();
-  signInWithPopup(auth, provider)
-      .then(() => {
-        router.push('/');
-      })
-      .catch(error => {
-        console.log(error.code);
-        alert(error.message);
-      });
-};
+  try {
+    const result = await signInWithPopup(auth, provider);
+    const userExists = await CheckUserExists(result.user.email);
+    if (!userExists) {
+      await CreateUserData(result, result.user.displayName);
+    }
 
+    router.push('/');
+  } catch (error) {
+    console.log(error.code);
+    alert(error.message);
+  }
+};
 
 const forgotPassword = () => {
   if (!email.value) {
     alert('Veuillez entrer votre adresse email.');
     return;
   }
-
   sendPasswordResetEmail(auth, email.value)
       .then(() => {
         alert('Email de réinitialisation de mot de passe envoyé.');
