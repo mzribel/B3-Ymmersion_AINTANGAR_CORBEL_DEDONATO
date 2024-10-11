@@ -16,13 +16,15 @@
 
     <br>
 
+    <p><button @click="registerWithGoogle">Register with Google</button></p>
+
     <p><RouterLink to="/login">Already have an account?</RouterLink></p>
   </main>
 </template>
 
 <script setup>
 import { ref, watch } from 'vue';
-import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
+import {getAuth, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup} from 'firebase/auth';
 import { useRouter } from 'vue-router';
 import UserComposable from '../composables/UserComposable.js';
 
@@ -53,6 +55,21 @@ const registerWithEmail = () => {
         alert(error.message);
       });
 };
+
+const registerWithGoogle = () => {
+  const provider = new GoogleAuthProvider();
+  signInWithPopup(auth, provider)
+      .then((result) => {
+        CreateUserData(result, result.user.displayName);
+
+        router.push('/');
+      })
+      .catch((error) => {
+        console.log(error.code);
+        alert(error.message);
+      });
+};
+
 </script>
 
 <style scoped>
