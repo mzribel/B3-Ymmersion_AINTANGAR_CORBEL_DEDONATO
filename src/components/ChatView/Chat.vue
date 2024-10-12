@@ -25,6 +25,7 @@ const user = inject('user');
 const userID = getAuth().currentUser.uid;
 const addingFile = ref(false);
 const selectedFile = ref(null);
+const editingMessage = ref(null); 
 
 watch(() => route.params.groupId, () => {
   chatID.value = route.params.groupId;
@@ -61,6 +62,18 @@ async function sendMessage() {
 function toDate(seconds) {
   return new Date(seconds).toLocaleString();
 }
+
+function editMessage(message) {
+  editingMessage.value = message.uid;
+}
+
+
+function saveEditedMessage(message, newText) {
+  if (UpdateMessageInConversation(chatID.value, message.uid, userID, newText)) {
+    editingMessage.value = null; 
+  }
+}
+
 </script>
 
 <template>
@@ -69,16 +82,28 @@ function toDate(seconds) {
     <div class="messages" v-if="conversationMembers && conversationMessages">
       <div v-for="(message, index) in conversationMessages" :key="index" class="message">
         <strong>{{ conversationMembers[message.sender] ? conversationMembers[message.sender].email : 'Ancien membre' }}:</strong> 
-        {{ message.text }}
+        
+        
         <img v-if="message.fileUrl" :src="message.fileUrl" alt="Image" width="100" />
+        
+        <template v-if="editingMessage === message.uid">
+          <input v-model="message.text" @keyup.enter="saveEditedMessage(message, message.text)" />
+        </template>
+        <template v-else>
+          {{ message.text }}
+        </template>
+
         <template v-if="message.sender == userID">
-          <button @click="UpdateMessageInConversation(chatID, message.uid, userID)">Edit</button>
+          <button v-if="editingMessage === message.uid" @click="saveEditedMessage(message, message.text)">Save</button>
+          <button v-else @click="editMessage(message)">Edit</button>
           <button @click="DeleteMessageFromConversation(chatID, message.uid, userID)">Delete</button>
         </template>
+
         <div>Posté à {{ toDate(message.sentAt) }}</div>
         <div v-if="message.lastEditedAt">Edité à {{ toDate(message.lastEditedAt) }}</div>
       </div>
     </div>
+
     <div>
       <input v-model="newMessage" @keyup.enter="sendMessage" placeholder="Tapez votre message..." />
       <button @click="addingFile = !addingFile">
@@ -89,6 +114,7 @@ function toDate(seconds) {
     </div>
   </div>
 </template>
+
 
 <style scoped>
 .chat {
