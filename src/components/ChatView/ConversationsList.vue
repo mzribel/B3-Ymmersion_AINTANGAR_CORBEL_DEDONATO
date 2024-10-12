@@ -47,6 +47,7 @@ onAuthStateChanged(getAuth(), async (u) => {
 })
 
 const orderedConversations = computed(()=> {
+  if (!conversationList.value) { return [] }
   return conversationList.value.sort((a, b) => {
     if (a.lastUpdateAt > b.lastUpdateAt) {
       return -1;

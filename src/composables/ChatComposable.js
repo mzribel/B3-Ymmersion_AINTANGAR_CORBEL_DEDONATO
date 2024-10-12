@@ -2,7 +2,7 @@ import { get, onValue, push, ref, ref as fbRef, remove, set, update } from "fire
 import { db } from "../firebase.js";
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
 import UserComposable from "../composables/UserComposable.js";
-const { GetUserByID } = UserComposable();
+const { GetUserByID, GetUserByEmail } = UserComposable();
 import FormatComposable from "../composables/FormatComposable.js";
 const { ToArray } = FormatComposable();
 
@@ -87,6 +87,16 @@ const ChatComposable = () => {
         });
     };
 
+    const AddUserEmailToGroupConversation = async (groupID, newUserEmail) => {
+          let userID = await GetUserByEmail(newUserEmail);
+          if (!userID) {
+            return null;
+          }
+
+          return await AddUserToGroupConversation(groupID, userID);
+    }
+
+    // Ajoute un membre à une conversation de groupe
     const AddUserToGroupConversation = async (groupID, newUserID) => {
         const conversation = await GetConversationByID(groupID);
         if (!conversation) {
@@ -236,6 +246,17 @@ const ChatComposable = () => {
         await remove(messageRef);
     };
 
+    const GetGroupsIncludingUsers = async (userIDs = []) => {
+        if (!userIDs) { return [] };
+        const allConversations = await GetAllConversations();
+        if (!allConversations) { return [] }
+
+        return allConversations.filter(conversation => {
+            return !conversation.isPrivate && userIDs.every(u => conversation.members.includes(u))
+        })
+    }
+
+
     return {
         GetConversationByID,
         GetAllConversations,
@@ -248,9 +269,11 @@ const ChatComposable = () => {
         GetUserConversations,
         RenameGroup,
         SendMessageToConversation,
-        UpdateMessageInConversation,
-        DeleteMessageFromConversation
-    };
-};
+        UpdateMessageInConversation, DeleteMessageFromConversation,
+        GetGroupsIncludingUsers,
+        AddUserEmailToGroupConversation
+    }
+}
+
 
 export default ChatComposable;

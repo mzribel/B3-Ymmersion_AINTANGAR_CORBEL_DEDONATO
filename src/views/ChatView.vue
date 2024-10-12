@@ -7,12 +7,13 @@ import FormatComposable from "../composables/FormatComposable.js";
 const { ToArray } = FormatComposable();
 
 import Chat from "../components/ChatView/Chat.vue";
-import MemberList from "../components/ChatView/MemberList.vue";
 import UserList from "../components/ChatView/Hero.vue";
 import {getAuth, onAuthStateChanged} from "firebase/auth";
 import {onValue, ref as fbRef} from "firebase/database";
 import {db} from "../firebase.js";
 import UserComposable from "../composables/UserComposable.js";
+import GroupConvDetails from "../components/ChatView/GroupConvDetails.vue";
+import PrivateConvDetails from "../components/ChatView/PrivateConvDetails.vue";
 const { GetConversationByID } = ChatComposable();
 const { GetUserByID } = UserComposable();
 
@@ -22,8 +23,8 @@ const router = useRouter();
 const userID = inject("userID");
 const chatID = ref(route.params.groupId);
 const conversationMessages = ref([]);
-const conversationMembers = ref([]);
-
+const conversationMembers = ref();
+const conversationIsPrivate = ref(false);
 
 const conversation = ref(null);
 onAuthStateChanged(getAuth(), async (u) => {
@@ -43,20 +44,18 @@ watch(() => route.params, async () => {
 
 function createConversationListeners() {
       onValue(fbRef(db, `conversations/${chatID.value}/members`), async (snapshot) => {
-      let members = await loadMembers(snapshot.val())
-      conversationMembers.value = members;
-      console.log("loaded members: ")
+        loadMembers(snapshot.val()).then(result=> {
+          conversationMembers.value = result;
+        })
     });
 
   // Messages
     onValue(fbRef(db, `conversations/${chatID.value}/messages`), (snapshot) => {
       conversationMessages.value = snapshot.val() ? ToArray(snapshot.val()) : [];
-      console.log("loaded messages")
     });
   // Title
     if (!conversation.isPrivate) {
       onValue(fbRef(db, `conversations/${chatID.value}/groupName`), (snapshot) => {
-        console.log("loaded title")
       });
     }
 
@@ -70,7 +69,6 @@ async function loadMembers(memberIDs) {
   for (const id of memberIDs) {
     members[id] = (await GetUserByID(id))
   }
-  console.log(members)
   return members;
 }
 
@@ -84,8 +82,11 @@ async function loadConversationData() {
   }
 
   conversation.value = conversationData;
-  let temp = await loadMembers(conversation.members);
-  conversationMembers.value = temp;
+  conversationIsPrivate.value = conversationData.isPrivate;
+  loadMembers(conversation.members).then(result=> {
+    conversationMembers.value = result;
+  })
+
   conversationMessages.value = conversationData.messages ? ToArray(conversationData.messages) : [];
 
 }
@@ -97,9 +98,10 @@ async function loadConversationData() {
   <div>
     <ConversationsList></ConversationsList>
   </div>
-  <template v-if="chatID">
+  <template v-if="chatID && conversation">
       <Chat :conversation-messages="conversationMessages" :conversation-members="conversationMembers"></Chat>
-      <MemberList :group-i-d="chatID"></MemberList>
+      <GroupConvDetails :conversation-i-d="conversation.uid" :conversation-title="conversation.groupName" :conversation-members="conversationMembers" :conversation-owners="conversation.ownerID" v-if="!conversationIsPrivate"></GroupConvDetails>
+      <PrivateConvDetails :conversation-members="conversationMembers" v-else-if="conversationIsPrivate && conversationMembers"></PrivateConvDetails>
   </template>
   <template v-else>
     <UserList></UserList>
