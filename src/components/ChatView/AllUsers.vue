@@ -70,25 +70,26 @@ async function AddUserToGroup(groupID, email) {
         </template>
       </ul>
     </template>
-    <br><br>
+    <br>
     <h2>Nouveau groupe</h2>
     <form @submit.prevent="CreateGroupConversation(user.uid, groupName)">
       <input v-model="groupName" type="text" placeholder="Nom du groupe" required />
       <button type="submit">Créer</button>
     </form>
 
-    <br><br>
+    <br>
     <h2>Liste des groupes</h2>
     <br>
     <template v-for="conv in conversationList">
-      <div v-if="!conv.isPrivate">
+      <div v-if="!conv.isPrivate" style="padding: 15px 0 20px; border: 1px solid black; border-width: 1px 0">
         <RouterLink :to="'/chat/'+conv.uid"><h3>>>> {{ conv.groupName ? conv.groupName : "Groupe Sans Titre"}}</h3></RouterLink>
-        <form @submit.prevent="RenameGroup(conv.uid, newGroupName)">
+        <div v-if="conv.isOwner">
+          <form @submit.prevent="RenameGroup(conv.uid, newGroupName)">
           <input v-model="newGroupName" type="text" placeholder="Entrez un nouveau nom" required />
           <button type="submit">Renommer le groupe</button>
         </form>
-        <button @click="DeleteGroupConversation(conv.uid)" v-if="conv.isOwner">Supprimer le groupe</button>
-        <br><br>
+        <button @click="DeleteGroupConversation(conv.uid)">Supprimer le groupe</button>
+        </div>
         <h4>Membres</h4>
         <ul>
           <li v-for="member in conv.members">
