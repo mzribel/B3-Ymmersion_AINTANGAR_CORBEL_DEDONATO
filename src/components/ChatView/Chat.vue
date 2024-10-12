@@ -26,56 +26,18 @@ const userID = getAuth().currentUser.uid;
 watch(() => route.params.groupId, () => {
     chatID.value = route.params.groupId;
     newMessage.value = "";
-    loadMessages(chatID.value)
 })
 
-onMounted(() => {
-  loadMessages(chatID.value)
-})
 
-// Todo: move to upper component ChatView
-async function loadMessages(conversationId) {
-      messages.value = [];
-      members.value = [];
+function sendMessage() {
+  if (SendMessageToConversation(chatID.value, user.value.uid, newMessage.value)) {
+    newMessage.value= '';
+  }
+}
 
-      let messagesRef;
-
-      // const groupTitleRef = fbRef(db, `conversations/${chatID.value}/name`);
-      // onValue(groupTitleRef, (snapshot) => {
-      //   chatTitle.value = snapshot.val();
-      // });
-
-
-      messagesRef = fbRef(db, `conversations/${chatID.value}/messages`);
-      onValue(messagesRef, (snapshot) => {
-
-        const messagesSnap = snapshot.val();
-        messages.value = [];
-        for (let key in messagesSnap) {
-          messages.value.push({ ...messagesSnap[key], id: key });
-        }
-      });
-
-      let membersRef = fbRef(db, `conversations/${chatID.value}/members`);
-      onValue(membersRef, (snapshot) => {
-        const membersSnap = snapshot.val();
-        members.value = [];
-        for (let key in membersSnap) {
-          members.value.push({ ...membersSnap[key], id: key });
-        }
-      });
-
-    }
-
-    function sendMessage() {
-      if (SendMessageToConversation(chatID.value, user.value.uid, newMessage.value)) {
-        newMessage.value= '';
-      }
-    }
-
-    function toDate(seconds) {
-      return (new Date(seconds)).toLocaleString();
-    }
+function toDate(seconds) {
+  return (new Date(seconds)).toLocaleString();
+}
 
 
 </script>
@@ -84,11 +46,11 @@ async function loadMessages(conversationId) {
   <div class="chat">
     <h2>Conversation</h2>
     <div class="messages">
-      <div v-for="(message, index) in messages" :key="index" class="message">
+      <div v-for="(message, index) in conversationMessages" :key="index" class="message">
         <strong>{{ message.sender }}:</strong> {{ message.text }}
         <template v-if="message.sender == userID">
-          <button @click="UpdateMessageInConversation(chatID, message.id)">Edit</button>
-          <button @click="DeleteMessageFromConversation(chatID, message.id, userID)">Delete</button>
+          <button @click="UpdateMessageInConversation(chatID, message.uid, userID)">Edit</button>
+          <button @click="DeleteMessageFromConversation(chatID, message.uid, userID)">Delete</button>
         </template>
         <div>Posté à {{toDate(message.sentAt) }}</div>
         <div v-if="message.lastEditedAt">Edité à {{toDate(message.lastEditedAt) }}</div>

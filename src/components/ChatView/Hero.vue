@@ -4,7 +4,6 @@ import ChatComposable from "../../composables/ChatComposable.js";
 const { GetCurrentUserData, GetAllUsers, GetUserByEmail } = UserComposable();
 const { RenameGroup, DeleteUserFromGroupConversation, AddUserToGroupConversation, DeleteGroupConversation, CreatePrivateConversation, CreateGroupConversation, GetUserConversations } = ChatComposable();
 import {computed, inject, ref} from "vue";
-import MembersList from "../../components/MembersList.vue";
 import {useRoute, useRouter} from "vue-router";
 import {getAuth, onAuthStateChanged} from "firebase/auth";
 import {onValue, ref as fbRef} from "firebase/database";

@@ -4,8 +4,8 @@
 
     <ul>
 
-
-      <li v-for="(conversation, key) in conversationList" :key="key">
+      <template v-for="(conversation, key) in orderedConversations" :key="key">
+      <li v-if="conversation.lastUpdateAt">
         <RouterLink :to="`/chat/${conversation.uid}`">
           {{ conversation.isPrivate ? "DM - " : "Groupe - "}}
           <template v-if="conversation.isPrivate">
@@ -19,6 +19,7 @@
           </template>
         </RouterLink>
       </li>
+      </template>
     </ul>
   </div>
 </template>
@@ -34,6 +35,7 @@ import {computed, inject, onMounted, ref} from "vue";
 import {RouterLink} from "vue-router";
 
 const conversationList = ref([]);
+const userID = inject("userID");
 const user = inject("user");
 
 onAuthStateChanged(getAuth(), async (u) => {
@@ -44,5 +46,15 @@ onAuthStateChanged(getAuth(), async (u) => {
   })
 })
 
+const orderedConversations = computed(()=> {
+  return conversationList.value.sort((a, b) => {
+    if (a.lastUpdateAt > b.lastUpdateAt) {
+      return -1;
+    } else if (a.lastUpdateAt < b.lastUpdateAt) {
+      return 1;
+    }
+    return 0;
+  });
+})
 
 </script>

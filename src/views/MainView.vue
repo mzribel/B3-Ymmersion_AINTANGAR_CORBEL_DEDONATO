@@ -1,7 +1,5 @@
 <script setup>
 import { getAuth, signOut } from 'firebase/auth';
-import ConversationsList from '../components/ConversationsList.vue';
-import CreateGroup from '../components/CreateGroup.vue';
 import { ref } from 'vue';
 import Profile from "../components/Profile.vue";
 

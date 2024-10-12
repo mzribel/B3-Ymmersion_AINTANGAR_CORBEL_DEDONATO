@@ -1,13 +1,11 @@
-import {createRouter, createWebHistory, useRoute, useRouter} from 'vue-router';
-import {getAuth, onAuthStateChanged} from 'firebase/auth';
+import { createRouter, createWebHistory } from 'vue-router';
+import { getAuth } from 'firebase/auth';
 import ChatView from '../views/ChatView.vue';
 import LoginView from '../views/LoginView.vue';
-import GroupChat from '../views/GroupChat.vue';
 import MainView from "../views/MainView.vue";
 import LogoutView from "../views/LogoutView.vue";
 import RegisterView from "../views/RegisterView.vue";
-import UserComposable from "../composables/UserComposable.js"
-import {inject} from "vue";
+import UserComposable from "../composables/UserComposable.js";
 
 const { GetAsyncUser } = UserComposable();
 
@@ -49,12 +47,6 @@ const router = createRouter({
       component: LogoutView
     },
     {
-      path: '/group/:groupId',
-      name: 'groupChat',
-      component: GroupChat,
-      props: true
-    },
-    {
       path: '/chat',
       name: 'chat',
       component: ChatView,
@@ -75,7 +67,5 @@ const router = createRouter({
     },
   ]
 });
-
-
 
 export default router;

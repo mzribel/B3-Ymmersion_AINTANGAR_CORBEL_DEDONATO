@@ -3,20 +3,26 @@ import { db } from "../firebase.js";
 
 import UserComposable from "../composables/UserComposable.js";
 const { GetUserByID } = UserComposable();
+import FormatComposable from "../composables/FormatComposable.js";
+const { ToArray } = FormatComposable();
 
 const ChatComposable = () => {
 
     // Récupère une conversation par son ID
     const GetConversationByID = async (conversationID = "") => {
         if (!conversationID) { return null; }
-        const groupRef = ref(db, `conversations/${conversationID}`);
-        return await (await get(groupRef)).val();
+        return await get(ref(db, `conversations/${conversationID}`)).then(snapshot => {
+            if (!snapshot.val()) { return null; }
+            let conversation = snapshot.val();
+            conversation["uid"] = conversationID;
+            return conversation;
+        })
     }
 
     // Récupère toutes les conversations
     const GetAllConversations = async () => {
         const conversationRef = ref(db, `conversations/`);
-        return (await get(conversationRef)).val();
+        return ToArray((await get(conversationRef)).val());
     }
 
     // Récupère, si elle existe, une conversation privée entre deux utilisateurs
@@ -26,11 +32,10 @@ const ChatComposable = () => {
         }
         return await GetAllConversations().then((conversations) => {
             if (!conversations) { return null; }
-
-            for (let key of Object.keys(conversations)) {
-                if (conversations[key].isPrivate &&
-                    conversations[key].members.sort().toString() == users.sort().toString()) {
-                    return {[key]: conversations[key]};
+            for (let conversation of conversations) {
+                if (conversation.isPrivate &&
+                    conversation.members.sort().toString() == users.sort().toString()) {
+                    return conversation;
                 }
             }
             return null;
@@ -45,7 +50,7 @@ const ChatComposable = () => {
         const pm = await GetPrivateConversationBetweenUsers(users)
         if (pm) {
             console.log("Le MP existe déjà : "+users)
-            return Object.keys(pm)[0];
+            return pm["uid"];
         }
         const conversationRef = ref(db, `conversations/`);
         const newConversationRef = push(conversationRef);
@@ -71,6 +76,7 @@ const ChatComposable = () => {
             createdAt: Date.now(),
             lastUpdateAt: Date.now(),
         });
+        return newGroupRef.key;
     }
 
     // Supprime une conversation de groupe
@@ -207,7 +213,8 @@ const ChatComposable = () => {
         return true;
     }
 
-    const UpdateMessageInConversation = async (conversationID, messageID, newMessage="Le poison de kuzco", userID=null) => {
+    const UpdateMessageInConversation = async (conversationID, messageID, userID=null, newMessage="Le poison de kuzco") => {
+        console.log(conversationID, messageID, userID)
         if (!newMessage || !newMessage.trim()) {
             console.log("no message");
             return false;
