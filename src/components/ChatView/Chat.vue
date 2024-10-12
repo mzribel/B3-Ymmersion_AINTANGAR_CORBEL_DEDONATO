@@ -4,76 +4,40 @@ import { db } from '../../firebase';
 import {watch, ref, onMounted, inject} from "vue";
 import {useRoute} from "vue-router";
 const route = useRoute()
+import ChatComposable from "../../composables/ChatComposable.js";
+import {getAuth} from "firebase/auth";
 
+const { SendMessageToConversation, UpdateMessageInConversation, DeleteMessageFromConversation } = ChatComposable();
 
 const chatID = ref(route.params.groupId);
 const props = defineProps({
   conversationTitle: {type: String, required: false},
   conversationMessages: {type: Object, required: true},
-  conversationMembers: {type: Array, required: false},
+  conversationMembers: {type: Object, required: false},
 })
 
-const messages = ref([]);
+const messages = ref(props.conversationMessages);
 const newMessage = ref("");
-const chatTitle = ref("Nouveau Groupe")
+const chatTitle = ref("")
 const members = ref([]);
 const user = inject("user")
+const userID = getAuth().currentUser.uid;
 
 watch(() => route.params.groupId, () => {
     chatID.value = route.params.groupId;
     newMessage.value = "";
-    loadMessages(chatID.value)
 })
 
-onMounted(() => {
-  loadMessages(chatID.value)
-})
 
-async function loadMessages(conversationId) {
-      messages.value = [];
-      members.value = [];
+function sendMessage() {
+  if (SendMessageToConversation(chatID.value, user.value.uid, newMessage.value)) {
+    newMessage.value= '';
+  }
+}
 
-      let messagesRef;
-
-      // const groupTitleRef = fbRef(db, `conversations/${conversationId}/name`);
-      // onValue(groupTitleRef, (snapshot) => {
-      //   chatTitle.value = snapshot.val();
-      // });
-
-
-      messagesRef = fbRef(db, `conversations/${conversationId}/messages`);
-      onValue(messagesRef, (snapshot) => {
-        const messagesSnap = snapshot.val();
-        messages.value = [];
-        for (let key in messagesSnap) {
-          messages.value.push({ ...messagesSnap[key], id: key });
-        }
-      });
-
-      let membersRef = fbRef(db, `conversations/${conversationId}/members`);
-      onValue(membersRef, (snapshot) => {
-        const membersSnap = snapshot.val();
-        members.value = [];
-        for (let key in membersSnap) {
-          members.value.push({ ...membersSnap[key], id: key });
-        }
-      });
-
-    }
-
-    function sendMessage() {
-      if (newMessage.value.trim() === '') return;
-
-      let messagesRef = fbRef(db, `conversations/${chatID.value}/messages`);
-
-      push(messagesRef, {
-        text: newMessage.value,
-        sender: user.value.email,
-        timestamp: Date.now()
-      });
-
-      newMessage.value= '';
-    }
+function toDate(seconds) {
+  return (new Date(seconds)).toLocaleString();
+}
 
 
 </script>
@@ -81,9 +45,15 @@ async function loadMessages(conversationId) {
 <template>
   <div class="chat">
     <h2>Conversation</h2>
-    <div class="messages">
-      <div v-for="(message, index) in messages" :key="index" class="message">
-        <strong>{{ message.sender }}:</strong> {{ message.text }}
+    <div class="messages" v-if="conversationMembers && conversationMessages">
+      <div v-for="(message, index) in conversationMessages" :key="index" class="message">
+        <strong>{{ conversationMembers[message.sender] ? conversationMembers[message.sender].email : "Ancien membre" }}:</strong> {{ message.text }}
+        <template v-if="message.sender == userID">
+          <button @click="UpdateMessageInConversation(chatID, message.uid, userID)">Edit</button>
+          <button @click="DeleteMessageFromConversation(chatID, message.uid, userID)">Delete</button>
+        </template>
+        <div>Posté à {{toDate(message.sentAt) }}</div>
+        <div v-if="message.lastEditedAt">Edité à {{toDate(message.lastEditedAt) }}</div>
         <div>
 
         </div>
@@ -116,11 +86,5 @@ input {
   border: 1px solid #ccc;
   width: 100%;
 }
-button {
-  margin-left: 0.5rem;
-  padding: 0.25rem 0.5rem;
-  width: 100px;
-  font-size: 0.8rem;
-  height: 50px;
-}
+
 </style>

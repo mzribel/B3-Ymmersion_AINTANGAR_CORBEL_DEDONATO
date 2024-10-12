@@ -4,7 +4,6 @@ import ChatComposable from "../../composables/ChatComposable.js";
 const { GetCurrentUserData, GetAllUsers, GetUserByEmail } = UserComposable();
 const { RenameGroup, DeleteUserFromGroupConversation, AddUserToGroupConversation, DeleteGroupConversation, CreatePrivateConversation, CreateGroupConversation, GetUserConversations } = ChatComposable();
 import {computed, inject, ref} from "vue";
-import MembersList from "../../components/MembersList.vue";
 import {useRoute, useRouter} from "vue-router";
 import {getAuth, onAuthStateChanged} from "firebase/auth";
 import {onValue, ref as fbRef} from "firebase/database";
@@ -16,11 +15,10 @@ const groupName = ref("");
 const userEmail = ref("")
 const conversationList = ref([]);
 const user = inject("user");
-const userID = ref("");
+const userID = inject("userID");
 const newGroupName = ref("");
 
 onAuthStateChanged(getAuth(), async (u) => {
-  userID.value = u.uid;
   conversationList.value = await GetUserConversations(u.uid);
   users.value = await GetAllUsers();
 
@@ -81,7 +79,7 @@ async function AddUserToGroup(groupID, email) {
     <h2>Liste des groupes</h2>
     <br>
     <template v-for="conv in conversationList">
-      <div v-if="!conv.isPrivate" style="padding: 15px 0 20px; border: 1px solid black; border-width: 1px 0">
+      <div v-if="!conv.isPrivate"  run devstyle="padding: 15px 0 20px; border: 1px solid black; border-width: 1px 0">
         <RouterLink :to="'/chat/'+conv.uid"><h3>>>> {{ conv.groupName ? conv.groupName : "Groupe Sans Titre"}}</h3></RouterLink>
         <div v-if="conv.isOwner">
           <form @submit.prevent="RenameGroup(conv.uid, newGroupName)">
@@ -90,6 +88,7 @@ async function AddUserToGroup(groupID, email) {
         </form>
         <button @click="DeleteGroupConversation(conv.uid)">Supprimer le groupe</button>
         </div>
+        <div v-else><button @click="DeleteUserFromGroupConversation(conv.uid, userID)">Quitter le groupe</button></div>
         <h4>Membres</h4>
         <ul>
           <li v-for="member in conv.members">

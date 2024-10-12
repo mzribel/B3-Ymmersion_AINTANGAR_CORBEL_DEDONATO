@@ -1,7 +1,5 @@
 <script setup>
 import { getAuth, signOut } from 'firebase/auth';
-import ConversationsList from '../components/ConversationsList.vue';
-import CreateGroup from '../components/CreateGroup.vue';
 import { ref } from 'vue';
 import Profile from "../components/Profile.vue";
 
@@ -16,16 +14,7 @@ function toggleCreateGroupForm() {
 </script>
 
 <template>
-  <div>
-    <h2>Bienvenue, {{ user.displayName }}</h2>
-    <RouterLink to="/logout"><button @click="logout">Déconnexion</button></RouterLink>
-    <button @click="toggleCreateGroupForm">
-      {{ showCreateGroupForm ? 'Fermer' : 'Créer un nouveau groupe' }}
-    </button>
-
-    <CreateGroup v-if="showCreateGroupForm" />
-    <ConversationsList />
-  </div>
+  <h2>Bienvenue, {{ user.email }}</h2>
   <Profile :userUid="user.uid" />
   
 </template>
