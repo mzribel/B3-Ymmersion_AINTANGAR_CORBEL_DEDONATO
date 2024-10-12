@@ -52,7 +52,6 @@ const ChatComposable = () => {
         await set(newConversationRef, {
             members: users,
             isPrivate: true,
-            createdAt: null,
             lastUpdateAt: null,
         });
         console.log("MP crée avec succès : "+users)
@@ -182,6 +181,63 @@ const ChatComposable = () => {
         return userConversations
     }
 
+    const SendMessageToConversation = async (conversationID, userID, message) => {
+        if (!message || !message.trim()) {
+            console.log("no message");
+            return false;
+        }
+
+        const conversation = await GetConversationByID(conversationID);
+        if (!conversation || !conversation.members.includes(userID)) {
+            console.log("Pas de conversation ou utilisateur non membre du groupe")
+            return false;
+        }
+
+        const messagesRef = fbRef(db, `conversations/${conversationID}/messages`)
+        push(messagesRef, {
+            text: message.trim(),
+            sender: userID,
+            sentAt: Date.now(),
+            lastEditedAt: null
+        });
+
+        update(ref(db, `conversations/${conversationID}/`), {lastUpdateAt: Date.now()}).then(() => {})
+
+        console.log("message envoyé avec succès")
+        return true;
+    }
+
+    const UpdateMessageInConversation = async (conversationID, messageID, newMessage="Le poison de kuzco", userID=null) => {
+        if (!newMessage || !newMessage.trim()) {
+            console.log("no message");
+            return false;
+        }
+        const messageRef = fbRef(db, `conversations/${conversationID}/messages/${messageID}`);
+        const message = (await get(messageRef)).val();
+        if (!message) { return; }
+        if (userID && userID != message.sender) {
+            console.log("Impossible de modifier les messages d'un autre utilisateur")
+            return;
+        }
+        update(messageRef, {
+            text: newMessage.trim(),
+            lastEditedAt: Date.now(),
+        }).then(() => {
+            console.log("Message mis à jour !");
+        });
+    }
+
+    const DeleteMessageFromConversation = async (conversationID, messageID, userID=null) => {
+        const messageRef = fbRef(db, `conversations/${conversationID}/messages/${messageID}`);
+        const message = (await get(messageRef)).val();
+        if (!message) { return; }
+        if (userID && userID != message.sender) {
+            console.log("Impossible de modifier les messages d'un autre utilisateur")
+            return;
+        }
+        await remove(messageRef);
+    }
+
     return {
         GetConversationByID,
         GetAllConversations,
@@ -192,8 +248,9 @@ const ChatComposable = () => {
         AddUserToGroupConversation,
         DeleteUserFromGroupConversation,
         GetUserConversations,
-        RenameGroup
-        // Todo : UpdateGroupConversation
+        RenameGroup,
+        SendMessageToConversation,
+        UpdateMessageInConversation, DeleteMessageFromConversation
     }
 }
 

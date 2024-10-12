@@ -31,8 +31,9 @@ async function loadConversationData() {
   if (!chatID.value) { return; }
 
   GetConversationByID(chatID.value).then((result) => {
-      if (!result.members.includes(getAuth().currentUser.uid)) {
+      if (!result || !result.members.includes(getAuth().currentUser.uid)) {
         router.push("/chat/")
+        return;
       }
 
       conversation.value = result;

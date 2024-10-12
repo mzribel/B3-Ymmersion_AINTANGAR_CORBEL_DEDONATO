@@ -16,16 +16,7 @@ function toggleCreateGroupForm() {
 </script>
 
 <template>
-  <div>
-    <h2>Bienvenue, {{ user.displayName }}</h2>
-    <RouterLink to="/logout"><button @click="logout">Déconnexion</button></RouterLink>
-    <button @click="toggleCreateGroupForm">
-      {{ showCreateGroupForm ? 'Fermer' : 'Créer un nouveau groupe' }}
-    </button>
-
-    <CreateGroup v-if="showCreateGroupForm" />
-    <ConversationsList />
-  </div>
+  <h2>Bienvenue, {{ user.email }}</h2>
   <Profile :userUid="user.uid" />
   
 </template>
