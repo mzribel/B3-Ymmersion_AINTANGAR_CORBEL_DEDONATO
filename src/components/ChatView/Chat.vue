@@ -85,7 +85,7 @@ function saveEditedMessage(message, newText) {
         
         
         <img v-if="message.fileUrl" :src="message.fileUrl" alt="Image" width="100" />
-        
+
         <template v-if="editingMessage === message.uid">
           <input v-model="message.text" @keyup.enter="saveEditedMessage(message, message.text)" />
         </template>
@@ -110,7 +110,7 @@ function saveEditedMessage(message, newText) {
         <span v-if="!addingFile">Ajouter un fichier</span>
         <span v-else>Annuler l'ajout de fichier</span>
       </button>
-      <input v-if="addingFile" type="file" @change="handleFileUpload" />
+      <input v-if="addingFile" type="file" @change="handleFileUpload" accept="image/*" />
     </div>
   </div>
 </template>
