@@ -12,7 +12,9 @@ import UserList from "../components/ChatView/Hero.vue";
 import {getAuth, onAuthStateChanged} from "firebase/auth";
 import {onValue, ref as fbRef} from "firebase/database";
 import {db} from "../firebase.js";
+import UserComposable from "../composables/UserComposable.js";
 const { GetConversationByID } = ChatComposable();
+const { GetUserByID } = UserComposable();
 
 const route = useRoute();
 const router = useRouter();
@@ -25,32 +27,56 @@ const conversationMembers = ref([]);
 
 const conversation = ref(null);
 onAuthStateChanged(getAuth(), async (u) => {
-  if (chatID) {
+  if (chatID.value) {
       await loadConversationData();
-      onValue(fbRef(db, `conversations/${chatID.value}/`), (snapshot) => {
-        loadConversationData(snapshot.val());
-      });
+      createConversationListeners();
   };
-  console.log(conversationMessages.value)
 })
 
-watch(() => route.params, () => {
-    chatID.value = route.params.groupId;
-    if (chatID.value) {
-      loadConversationData();
-      onValue(fbRef(db, `conversations/${chatID.value}`), (snapshot) => {
-        loadConversationData(snapshot.val());
+watch(() => route.params, async () => {
+  chatID.value = route.params.groupId;
+  if (chatID.value) {
+    await loadConversationData();
+    createConversationListeners()
+  }
+})
+
+function createConversationListeners() {
+      onValue(fbRef(db, `conversations/${chatID.value}/members`), async (snapshot) => {
+      let members = await loadMembers(snapshot.val())
+      conversationMembers.value = members;
+      console.log("loaded members: ")
+    });
+
+  // Messages
+    onValue(fbRef(db, `conversations/${chatID.value}/messages`), (snapshot) => {
+      conversationMessages.value = snapshot.val() ? ToArray(snapshot.val()) : [];
+      console.log("loaded messages")
+    });
+  // Title
+    if (!conversation.isPrivate) {
+      onValue(fbRef(db, `conversations/${chatID.value}/groupName`), (snapshot) => {
+        console.log("loaded title")
       });
     }
-})
 
-async function loadConversationData(conversationData=null) {
-  if (!chatID.value) { return; }
-  if (!conversationData) {
-    conversationData = await GetConversationByID(chatID.value);
+}
+
+async function loadMembers(memberIDs) {
+  let members = {};
+  if (!memberIDs) {
+    return;
   }
+  for (const id of memberIDs) {
+    members[id] = (await GetUserByID(id))
+  }
+  console.log(members)
+  return members;
+}
 
-  console.log(conversationData)
+async function loadConversationData() {
+  if (!chatID.value) { return; }
+  let conversationData = await GetConversationByID(chatID.value);
 
   if (!conversationData || !conversationData.members.includes(userID.value)) {
     await router.push("/chat/")
@@ -58,9 +84,9 @@ async function loadConversationData(conversationData=null) {
   }
 
   conversation.value = conversationData;
+  let temp = await loadMembers(conversation.members);
+  conversationMembers.value = temp;
   conversationMessages.value = conversationData.messages ? ToArray(conversationData.messages) : [];
-  console.log(conversationMessages.value)
-  conversationMembers.value = conversationData.members;
 
 }
 
@@ -72,7 +98,7 @@ async function loadConversationData(conversationData=null) {
     <ConversationsList></ConversationsList>
   </div>
   <template v-if="chatID">
-      <Chat :conversation-messages="conversationMessages"></Chat>
+      <Chat :conversation-messages="conversationMessages" :conversation-members="conversationMembers"></Chat>
       <MemberList :group-i-d="chatID"></MemberList>
   </template>
   <template v-else>

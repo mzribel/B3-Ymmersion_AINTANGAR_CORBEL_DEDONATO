@@ -13,7 +13,7 @@ const chatID = ref(route.params.groupId);
 const props = defineProps({
   conversationTitle: {type: String, required: false},
   conversationMessages: {type: Object, required: true},
-  conversationMembers: {type: Array, required: false},
+  conversationMembers: {type: Object, required: false},
 })
 
 const messages = ref(props.conversationMessages);
@@ -45,9 +45,9 @@ function toDate(seconds) {
 <template>
   <div class="chat">
     <h2>Conversation</h2>
-    <div class="messages">
+    <div class="messages" v-if="conversationMembers && conversationMessages">
       <div v-for="(message, index) in conversationMessages" :key="index" class="message">
-        <strong>{{ message.sender }}:</strong> {{ message.text }}
+        <strong>{{ conversationMembers[message.sender] ? conversationMembers[message.sender].email : "Ancien membre" }}:</strong> {{ message.text }}
         <template v-if="message.sender == userID">
           <button @click="UpdateMessageInConversation(chatID, message.uid, userID)">Edit</button>
           <button @click="DeleteMessageFromConversation(chatID, message.uid, userID)">Delete</button>

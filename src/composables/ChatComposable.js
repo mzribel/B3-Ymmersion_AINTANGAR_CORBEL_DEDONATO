@@ -214,7 +214,6 @@ const ChatComposable = () => {
     }
 
     const UpdateMessageInConversation = async (conversationID, messageID, userID=null, newMessage="Le poison de kuzco") => {
-        console.log(conversationID, messageID, userID)
         if (!newMessage || !newMessage.trim()) {
             console.log("no message");
             return false;

@@ -15,11 +15,10 @@ const groupName = ref("");
 const userEmail = ref("")
 const conversationList = ref([]);
 const user = inject("user");
-const userID = ref("");
+const userID = inject("userID");
 const newGroupName = ref("");
 
 onAuthStateChanged(getAuth(), async (u) => {
-  userID.value = u.uid;
   conversationList.value = await GetUserConversations(u.uid);
   users.value = await GetAllUsers();
 
