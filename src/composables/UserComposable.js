@@ -78,10 +78,7 @@ const UserComposable = () => {
           resolve(user);
         }, reject);
       });
-
-
     }
-
 
 
     return { GetAllUsers, GetUserByID, CreateUserData, GetCurrentUser, GetCurrentUserData: GetUserByID, GetAsyncUser, GetUserByEmail, CheckUserExists };

@@ -12,7 +12,7 @@ import ChatComposable from "./composables/ChatComposable.js";
 import FormatComposable from "./composables/FormatComposable.js";
 
 const { GetCurrentUserData } = UserComposable();
-const { GetPrivateConversationBetweenUsers } = ChatComposable();
+const { GetGroupsIncludingUsers } = ChatComposable();
 const { ToArray } = FormatComposable();
 const userData = ref();
 const userID = ref();
@@ -25,7 +25,6 @@ onAuthStateChanged(auth, async (u) => {
   if (u) {
     userData.value = await GetCurrentUserData(u.uid);
     userID.value = u.uid;
-    loading.value = false;
   } else {
     userData.value = null;
     userID.value = null;
