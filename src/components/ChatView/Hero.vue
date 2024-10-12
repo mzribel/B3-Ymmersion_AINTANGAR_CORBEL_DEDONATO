@@ -90,6 +90,7 @@ async function AddUserToGroup(groupID, email) {
         </form>
         <button @click="DeleteGroupConversation(conv.uid)">Supprimer le groupe</button>
         </div>
+        <div v-else><button @click="DeleteUserFromGroupConversation(conv.uid, userID)">Quitter le groupe</button></div>
         <h4>Membres</h4>
         <ul>
           <li v-for="member in conv.members">
