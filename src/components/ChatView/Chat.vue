@@ -22,12 +22,12 @@ const chatTitle = ref("")
 const members = ref([]);
 const user = inject("user")
 const userID = getAuth().currentUser.uid;
+const editingMessage = ref(null); // Référence pour stocker l'ID du message en cours d'édition
 
 watch(() => route.params.groupId, () => {
     chatID.value = route.params.groupId;
     newMessage.value = "";
 })
-
 
 function sendMessage() {
   if (SendMessageToConversation(chatID.value, user.value.uid, newMessage.value)) {
@@ -39,6 +39,17 @@ function toDate(seconds) {
   return (new Date(seconds)).toLocaleString();
 }
 
+// Entrer en mode d'édition pour un message
+function editMessage(message) {
+  editingMessage.value = message.uid; // Identifie le message en cours d'édition
+}
+
+
+function saveEditedMessage(message, newText) {
+  if (UpdateMessageInConversation(chatID.value, message.uid, userID, newText)) {
+    editingMessage.value = null; 
+  }
+}
 
 </script>
 
@@ -47,16 +58,24 @@ function toDate(seconds) {
     <h2>Conversation</h2>
     <div class="messages" v-if="conversationMembers && conversationMessages">
       <div v-for="(message, index) in conversationMessages" :key="index" class="message">
-        <strong>{{ conversationMembers[message.sender] ? conversationMembers[message.sender].email : "Ancien membre" }}:</strong> {{ message.text }}
+        <strong>{{ conversationMembers[message.sender] ? conversationMembers[message.sender].email : "Ancien membre" }}:</strong>
+
+        <template v-if="editingMessage === message.uid">
+          <input v-model="message.text" @keyup.enter="saveEditedMessage(message, message.text)" />
+        </template>
+        <template v-else>
+          {{ message.text }}
+        </template>
+
         <template v-if="message.sender == userID">
-          <button @click="UpdateMessageInConversation(chatID, message.uid, userID)">Edit</button>
+          <button v-if="editingMessage == message.uid" @click="saveEditedMessage(message, message.text)">Save</button>
+
+          <button v-if="editingMessage !== message.uid" @click="editMessage(message)">Edit</button>
           <button @click="DeleteMessageFromConversation(chatID, message.uid, userID)">Delete</button>
         </template>
+
         <div>Posté à {{toDate(message.sentAt) }}</div>
         <div v-if="message.lastEditedAt">Edité à {{toDate(message.lastEditedAt) }}</div>
-        <div>
-
-        </div>
       </div>
     </div>
     <input
@@ -86,5 +105,4 @@ input {
   border: 1px solid #ccc;
   width: 100%;
 }
-
 </style>
