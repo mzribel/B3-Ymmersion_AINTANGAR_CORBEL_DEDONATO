@@ -8,7 +8,7 @@
           <label for="profile-pic-input" class="clickable-pfp-label">
             <img :src="profile.photoURL || defaultPhoto" alt="Photo de profil" class="pfp-img img-modifiable" />
           </label>
-          <input id="profile-pic-input" type="file" @change="onFileChange" class="file-input" />
+          <input id="profile-pic-input" type="file" accept="image/*" @change="onFileChange" class="file-input" />
         </div>
         <div v-else>
           <img :src="profile.photoURL || defaultPhoto" alt="Photo de profil" width="100" class="pfp-img"/>
