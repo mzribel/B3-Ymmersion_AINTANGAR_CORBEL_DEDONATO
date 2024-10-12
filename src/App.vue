@@ -26,6 +26,9 @@ onAuthStateChanged(auth, async (u) => {
     userData.value = await GetCurrentUserData(u.uid);
     userID.value = u.uid;
     loading.value = false;
+  } else {
+    userData.value = null;
+    userID.value = null;
   }
 });
 
