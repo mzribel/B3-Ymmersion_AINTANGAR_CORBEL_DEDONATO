@@ -1,14 +1,12 @@
-import {get, onValue, push, ref, ref as fbRef, remove, set, update} from "firebase/database";
+import { get, onValue, push, ref, ref as fbRef, remove, set, update } from "firebase/database";
 import { db } from "../firebase.js";
-
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
 import UserComposable from "../composables/UserComposable.js";
 const { GetUserByID } = UserComposable();
 import FormatComposable from "../composables/FormatComposable.js";
 const { ToArray } = FormatComposable();
 
 const ChatComposable = () => {
-
-    // Récupère une conversation par son ID
     const GetConversationByID = async (conversationID = "") => {
         if (!conversationID) { return null; }
         return await get(ref(db, `conversations/${conversationID}`)).then(snapshot => {
@@ -16,16 +14,14 @@ const ChatComposable = () => {
             let conversation = snapshot.val();
             conversation["uid"] = conversationID;
             return conversation;
-        })
-    }
+        });
+    };
 
-    // Récupère toutes les conversations
     const GetAllConversations = async () => {
         const conversationRef = ref(db, `conversations/`);
         return ToArray((await get(conversationRef)).val());
-    }
+    };
 
-    // Récupère, si elle existe, une conversation privée entre deux utilisateurs
     const GetPrivateConversationBetweenUsers = async (users = []) => {
         if (!users || users.length != 2) {
             return;
@@ -39,17 +35,16 @@ const ChatComposable = () => {
                 }
             }
             return null;
-        })
-    }
+        });
+    };
 
-    // Crée, si elle n'existe pas, une conversation entre deux utilisateurs
     const CreatePrivateConversation = async (users = []) => {
         if (!users || users.length != 2) {
             return;
         }
-        const pm = await GetPrivateConversationBetweenUsers(users)
+        const pm = await GetPrivateConversationBetweenUsers(users);
         if (pm) {
-            console.log("Le MP existe déjà : "+users)
+            console.log("Le MP existe déjà : " + users);
             return pm["uid"];
         }
         const conversationRef = ref(db, `conversations/`);
@@ -59,13 +54,11 @@ const ChatComposable = () => {
             isPrivate: true,
             lastUpdateAt: null,
         });
-        console.log("MP crée avec succès : "+users)
+        console.log("MP créé avec succès : " + users);
         return newConversationRef.key;
-    }
+    };
 
-    // Crée une conversation de groupe
-    // Todo : pour l'instant, elle est vide et il faut la peupler après-coup
-    const CreateGroupConversation = async (ownerID, groupName="") => {
+    const CreateGroupConversation = async (ownerID, groupName = "") => {
         const conversationRef = ref(db, `conversations/`);
         const newGroupRef = push(conversationRef);
         await set(newGroupRef, {
@@ -77,91 +70,89 @@ const ChatComposable = () => {
             lastUpdateAt: Date.now(),
         });
         return newGroupRef.key;
-    }
+    };
 
-    // Supprime une conversation de groupe
     const DeleteGroupConversation = async (groupID) => {
         const conversation = await GetConversationByID(groupID);
         if (!conversation) {
-            console.log("La conversation n'existe pas")
+            console.log("La conversation n'existe pas");
             return;
         }
         if (conversation.isPrivate) {
-            console.log("Impossible de supprimer une conversation privée")
+            console.log("Impossible de supprimer une conversation privée");
             return;
         }
-        remove(ref(db, `conversations/${groupID}`)).then(()=> {
-            console.log("Groupe supprimé avec succès")
+        remove(ref(db, `conversations/${groupID}`)).then(() => {
+            console.log("Groupe supprimé avec succès");
         });
-    }
+    };
 
-    // Ajoute un membre à une conversation de groupe
     const AddUserToGroupConversation = async (groupID, newUserID) => {
         const conversation = await GetConversationByID(groupID);
         if (!conversation) {
-            console.log("La conversation n'existe pas")
+            console.log("La conversation n'existe pas");
             return;
         } else if (conversation.isPrivate) {
-            console.log("Impossible d'ajouter un membre à une conversation privée")
+            console.log("Impossible d'ajouter un membre à une conversation privée");
             return;
         }
 
         let memberList = conversation.members;
         if (memberList.includes(newUserID)) {
-            console.log("Le membre fait déjà partie du groupe")
+            console.log("Le membre fait déjà partie du groupe");
             return;
         }
 
         const newMember = await GetUserByID(newUserID);
         if (!newMember) {
-            console.log("L'id du membre est invalide");
+            console.log("L'ID du membre est invalide");
             return;
         }
 
         memberList.push(newUserID);
-        update(ref(db, `conversations/${groupID}/`), {members: memberList}).then(() => {
-            console.log("Groupe mis à jour")
+        update(ref(db, `conversations/${groupID}/`), { members: memberList }).then(() => {
+            console.log("Groupe mis à jour");
         });
-    }
+    };
 
     const RenameGroup = async (groupID, newName) => {
         const conversation = await GetConversationByID(groupID);
         if (!conversation) {
-            console.log("La conversation n'existe pas")
+            console.log("La conversation n'existe pas");
             return;
         } else if (conversation.isPrivate) {
-            console.log("Impossible de renommer une conversation privée")
+            console.log("Impossible de renommer une conversation privée");
             return;
         }
 
-        update(ref(db, `conversations/${groupID}/`), {groupName: newName}).then(() => {
-            console.log("Groupe mis à jour")
+        update(ref(db, `conversations/${groupID}/`), { groupName: newName }).then(() => {
+            console.log("Groupe mis à jour");
         });
-    }
+    };
 
     const DeleteUserFromGroupConversation = async (groupID, userID) => {
         const conversation = await GetConversationByID(groupID);
         if (!conversation) {
-            console.log("La conversation n'existe pas")
+            console.log("La conversation n'existe pas");
             return;
         } else if (conversation.isPrivate) {
-            console.log("Impossible de supprimer un membre d'une conversation privée")
+            console.log("Impossible de supprimer un membre d'une conversation privée");
             return;
         }
 
-        if (conversation.ownerId == userID) {
-            console.log("Impossible de supprimer le propriétaire du groupe")
+        if (conversation.ownerID == userID) {
+            console.log("Impossible de supprimer le propriétaire du groupe");
             return;
         }
 
         let memberList = conversation.members.filter((member) => {
-            return member !== userID
+            return member !== userID;
         });
 
-        update(ref(db, `conversations/${groupID}/`), {members: memberList}).then(() => {
-            console.log("Groupe mis à jour")
+        update(ref(db, `conversations/${groupID}/`), { members: memberList }).then(() => {
+            console.log("Groupe mis à jour");
         });
-    }
+    };
 
     const GetUserConversations = async (userID) => {
         const conversations = (await get(ref(db, `conversations/`))).val();
@@ -169,7 +160,7 @@ const ChatComposable = () => {
 
         let userConversations = [];
         for (let key of Object.keys(conversations)) {
-            if (!conversations[key].members.includes(userID)) { continue }
+            if (!conversations[key].members.includes(userID)) { continue; }
 
             let members = [];
             for (const member of conversations[key].members) {
@@ -180,49 +171,50 @@ const ChatComposable = () => {
                 });
             }
             conversations[key].members = members;
-            Object.assign(conversations[key], {isOwner: conversations[key].ownerID == userID})
-            Object.assign(conversations[key], {uid: key})
+            Object.assign(conversations[key], { isOwner: conversations[key].ownerID == userID });
+            Object.assign(conversations[key], { uid: key });
             userConversations.push(conversations[key]);
         }
-        return userConversations
-    }
+        return userConversations;
+    };
 
-    const SendMessageToConversation = async (conversationID, userID, message) => {
-        if (!message || !message.trim()) {
-            console.log("no message");
+    const SendMessageToConversation = async (conversationID, userID, message, fileUrl = null) => {
+        if (!message && !fileUrl) {
+            console.log("Pas de message ou de fichier");
             return false;
         }
 
         const conversation = await GetConversationByID(conversationID);
         if (!conversation || !conversation.members.includes(userID)) {
-            console.log("Pas de conversation ou utilisateur non membre du groupe")
+            console.log("Pas de conversation ou utilisateur non membre du groupe");
             return false;
         }
 
-        const messagesRef = fbRef(db, `conversations/${conversationID}/messages`)
+        const messagesRef = fbRef(db, `conversations/${conversationID}/messages`);
         push(messagesRef, {
-            text: message.trim(),
+            text: message ? message.trim() : null,
+            fileUrl: fileUrl || null,  
             sender: userID,
             sentAt: Date.now(),
             lastEditedAt: null
         });
 
-        update(ref(db, `conversations/${conversationID}/`), {lastUpdateAt: Date.now()}).then(() => {})
+        update(ref(db, `conversations/${conversationID}/`), { lastUpdateAt: Date.now() }).then(() => { });
 
-        console.log("message envoyé avec succès")
+        console.log("Message envoyé avec succès");
         return true;
-    }
+    };
 
-    const UpdateMessageInConversation = async (conversationID, messageID, userID=null, newMessage="Le poison de kuzco") => {
+    const UpdateMessageInConversation = async (conversationID, messageID, userID = null, newMessage = "Le poison de Kuzco") => {
         if (!newMessage || !newMessage.trim()) {
-            console.log("no message");
+            console.log("Pas de message");
             return false;
         }
         const messageRef = fbRef(db, `conversations/${conversationID}/messages/${messageID}`);
         const message = (await get(messageRef)).val();
         if (!message) { return; }
         if (userID && userID != message.sender) {
-            console.log("Impossible de modifier les messages d'un autre utilisateur")
+            console.log("Impossible de modifier les messages d'un autre utilisateur");
             return;
         }
         update(messageRef, {
@@ -231,18 +223,18 @@ const ChatComposable = () => {
         }).then(() => {
             console.log("Message mis à jour !");
         });
-    }
+    };
 
-    const DeleteMessageFromConversation = async (conversationID, messageID, userID=null) => {
+    const DeleteMessageFromConversation = async (conversationID, messageID, userID = null) => {
         const messageRef = fbRef(db, `conversations/${conversationID}/messages/${messageID}`);
         const message = (await get(messageRef)).val();
         if (!message) { return; }
         if (userID && userID != message.sender) {
-            console.log("Impossible de modifier les messages d'un autre utilisateur")
+            console.log("Impossible de modifier les messages d'un autre utilisateur");
             return;
         }
         await remove(messageRef);
-    }
+    };
 
     return {
         GetConversationByID,
@@ -256,8 +248,9 @@ const ChatComposable = () => {
         GetUserConversations,
         RenameGroup,
         SendMessageToConversation,
-        UpdateMessageInConversation, DeleteMessageFromConversation
-    }
-}
+        UpdateMessageInConversation,
+        DeleteMessageFromConversation
+    };
+};
 
 export default ChatComposable;
