@@ -53,11 +53,58 @@ async function AddUserToGroup(groupID, email) {
   userEmail.value = "";
 }
 
+const groupConversationsList = computed(() => {
+  if (!conversationList.value) {
+    return [];
+  }
+  return conversationList.value.filter(conversation => {
+    return !conversation.isPrivate;
+  })
+})
+
+const createGroup = async (userID, groupName) => {
+  let newGroup = await CreateGroupConversation(userID, groupName);
+  console.log(newGroup)
+  if (newGroup) {
+    console.log("push?")
+    await router.push("/chat/" + newGroup);
+  }
+}
+
 </script>
 
 <template>
   <div class="hero-component">
-    <h2>Utilisateurs</h2>
+    <div class="groups-ctn">
+      <h1>• Mes groupes •</h1>
+      <div v-if="!groupConversationsList || !groupConversationsList.length">
+        <span>Pas de groupe !</span>
+      </div>
+      <div v-else>
+        <template v-for="conv in conversationList">
+          <div v-if="!conv.isPrivate"  run devstyle="padding: 15px 0 20px; border: 1px solid black; border-width: 1px 0">
+            <RouterLink :to="'/chat/'+conv.uid"><h3>>>> {{ conv.groupName ? conv.groupName : "Groupe Sans Titre"}}</h3></RouterLink>
+            <div v-if="conv.isOwner">
+              <button @click="DeleteGroupConversation(conv.uid)">Supprimer le groupe</button>
+            </div>
+            <div v-else><button @click="DeleteUserFromGroupConversation(conv.uid, userID)">Quitter le groupe</button></div>
+            <span>{{ conv.members.length}} membre(s)</span>
+            <span v-if="conv.messages">, {{ Object.keys(conv.messages).length }} message(s)</span>
+            <span v-else>0 message</span>
+          </div>
+        </template>
+      </div>
+    </div>
+    <div class="group-creation-ctn">
+      <h1>• Créer un groupe •</h1>
+      <form @submit.prevent="createGroup(user.uid, groupName)">
+        <input v-model="groupName" type="text" placeholder="Nom du groupe" required />
+        <button type="submit">Créer</button>
+      </form>
+    </div>
+
+    <div class="all-users-ctn">
+      <h1>• Tous les utilisateurs •</h1>
     <template v-if="users">
       <ul>
         <template v-for="user in users" :key="user.uid">
@@ -68,53 +115,15 @@ async function AddUserToGroup(groupID, email) {
         </template>
       </ul>
     </template>
-    <br>
-    <h2>Nouveau groupe</h2>
-    <form @submit.prevent="CreateGroupConversation(user.uid, groupName)">
-      <input v-model="groupName" type="text" placeholder="Nom du groupe" required />
-      <button type="submit">Créer</button>
-    </form>
 
-    <br>
-    <h2>Liste des groupes</h2>
-    <br>
-    <template v-for="conv in conversationList">
-      <div v-if="!conv.isPrivate"  run devstyle="padding: 15px 0 20px; border: 1px solid black; border-width: 1px 0">
-        <RouterLink :to="'/chat/'+conv.uid"><h3>>>> {{ conv.groupName ? conv.groupName : "Groupe Sans Titre"}}</h3></RouterLink>
-        <div v-if="conv.isOwner">
-          <form @submit.prevent="RenameGroup(conv.uid, newGroupName)">
-          <input v-model="newGroupName" type="text" placeholder="Entrez un nouveau nom" required />
-          <button type="submit">Renommer le groupe</button>
-        </form>
-        <button @click="DeleteGroupConversation(conv.uid)">Supprimer le groupe</button>
-        </div>
-        <div v-else><button @click="DeleteUserFromGroupConversation(conv.uid, userID)">Quitter le groupe</button></div>
-        <h4>Membres</h4>
-        <ul>
-          <li v-for="member in conv.members">
-            <span v-if="member.uid == conv.ownerID">👑</span>
-            {{ member.displayName ? member.displayName+" - " : ""}}
-            {{ member.email}}
 
-            <span v-if="conv.isOwner && member.uid != conv.ownerID">
-              <button @click="DeleteUserFromGroupConversation(conv.uid, member.uid)">Delete</button>
-            </span>
-
-          </li>
-          <li>
-            <form @submit.prevent="AddUserToGroup(conv.uid, userEmail)">
-              <input v-model="userEmail" type="text" placeholder="Entrez une adresse mail" required />
-              <button type="submit">Ajouter au groupe</button>
-            </form>
-          </li>
-        </ul>
-      </div>
-
-    </template>
+          </div>
   </div>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss">
+@import "../../assets/css/ChatView/ConversationList.scss";
+
 .hero-component {
   width: 100%;
 }
