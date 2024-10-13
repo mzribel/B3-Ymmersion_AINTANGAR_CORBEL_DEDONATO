@@ -1,7 +1,9 @@
 <script setup>
 import {computed, inject, onMounted, ref, watch} from "vue";
 import ChatComposable from "../../composables/ChatComposable.js"
-import {common} from "protobufjs";
+import FormatComposable from "../../composables/FormatComposable.js"
+const { toDate } = FormatComposable();
+
 const { GetGroupsIncludingUsers } = ChatComposable();
 
 const userID = inject("userID")
@@ -30,10 +32,6 @@ onMounted(async () => {
   otherUser.value = getOtherUser();
   commonGroups.value = await GetGroupsIncludingUsers(Object.keys(props.conversationMembers));
 })
-
-function toDate(seconds) {
-  return (new Date(seconds)).toLocaleString();
-}
 
 </script>
 

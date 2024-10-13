@@ -12,9 +12,14 @@ body, html, #app {
   width: 100%;
   margin: 0;
   font-family: "Poppins", sans-serif;
+  overflow: hidden;
+}
+
+main {
+  height: 100%;
 }
 
 a {
-  //text-decoration: none;
+  text-decoration: none;
   color: unset;
 }

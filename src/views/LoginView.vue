@@ -97,7 +97,7 @@ button {
   border: none;
   color: blue;
   cursor: pointer;
-  border-bottom: 1px solid blue;
+  border-bottom: 1px solid black;
   text-align: right;
   width: fit-content;
 }

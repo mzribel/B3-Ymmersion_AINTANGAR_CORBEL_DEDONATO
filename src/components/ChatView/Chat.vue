@@ -26,11 +26,21 @@ const userID = getAuth().currentUser.uid;
 const addingFile = ref(false);
 const selectedFile = ref(null);
 const editingMessage = ref(null); 
+const lastMessageRef = ref(null)
+
 
 watch(() => route.params.groupId, () => {
   chatID.value = route.params.groupId;
   newMessage.value = '';
 });
+
+watch(()=> props.conversationMessages, ()=> {
+    scrollToChatBottom();
+})
+
+onMounted(()=> {
+    scrollToChatBottom();
+})
 
 function handleFileUpload(event) {
   const file = event.target.files[0];
@@ -53,8 +63,9 @@ async function sendMessage() {
     selectedFile.value = null;
     addingFile.value = false;
   } else {
-    if (SendMessageToConversation(chatID.value, user.value.uid, newMessage.value)) {
+    if (await SendMessageToConversation(chatID.value, user.value.uid, newMessage.value)) {
       newMessage.value = '';
+      scrollToChatBottom()
     }
   }
 }
@@ -74,37 +85,48 @@ function saveEditedMessage(message, newText) {
   }
 }
 
+const scrollToChatBottom = (smooth=false) => {
+  let latestMessage = document.getElementsByClassName("latest")[0];
+  if (latestMessage) {
+    latestMessage.scrollIntoView({behavior: smooth ? 'smooth' : 'instant'})
+  }
+}
+
 </script>
 
 <template>
-  <div class="chat">
-    <h2>Conversation</h2>
-    <div class="messages" v-if="conversationMembers && conversationMessages">
-      <div v-for="(message, index) in conversationMessages" :key="index" class="message">
-        <strong>{{ conversationMembers[message.sender] ? conversationMembers[message.sender].email : 'Ancien membre' }}:</strong> 
-        
-        
-        <img v-if="message.fileUrl" :src="message.fileUrl" alt="Image" width="100" />
+  <div class="chat-component">
+    <div class="chat-header">
+      <h2>Conversation</h2>
+    </div>
+    <div class="chat-content">
+      <div class="messages" v-if="conversationMembers && conversationMessages">
+        <template v-for="(message, index) in conversationMessages" :key="index">
+          <div class="message" :class="index+1 === conversationMessages.length ? 'latest' : null">
+            <strong>{{ conversationMembers[message.sender] ? conversationMembers[message.sender].email : 'Ancien membre' }}:</strong>
+            <img v-if="message.fileUrl" :src="message.fileUrl" alt="Image" width="100" />
 
-        <template v-if="editingMessage === message.uid">
-          <input v-model="message.text" @keyup.enter="saveEditedMessage(message, message.text)" />
-        </template>
-        <template v-else>
-          {{ message.text }}
-        </template>
+            <template v-if="editingMessage === message.uid">
+              <input v-model="message.text" @keyup.enter="saveEditedMessage(message, message.text)" />
+            </template>
+            <template v-else>
+              {{ message.text }}
+            </template>
 
-        <template v-if="message.sender == userID">
-          <button v-if="editingMessage === message.uid" @click="saveEditedMessage(message, message.text)">Save</button>
-          <button v-else @click="editMessage(message)">Edit</button>
-          <button @click="DeleteMessageFromConversation(chatID, message.uid, userID)">Delete</button>
-        </template>
+            <template v-if="message.sender == userID">
+              <button v-if="editingMessage === message.uid" @click="saveEditedMessage(message, message.text)">Save</button>
+              <button v-else @click="editMessage(message)">Edit</button>
+              <button @click="DeleteMessageFromConversation(chatID, message.uid, userID)">Delete</button>
+            </template>
 
-        <div>Posté à {{ toDate(message.sentAt) }}</div>
-        <div v-if="message.lastEditedAt">Edité à {{ toDate(message.lastEditedAt) }}</div>
+            <div>Posté à {{ toDate(message.sentAt) }}</div>
+            <div v-if="message.lastEditedAt">Edité à {{ toDate(message.lastEditedAt) }}</div>
+          </div>
+        </template>
       </div>
     </div>
-
-    <div>
+    <div class="chat-input-ctn">
+          <div>
       <input v-model="newMessage" @keyup.enter="sendMessage" placeholder="Tapez votre message..." />
       <button @click="addingFile = !addingFile">
         <span v-if="!addingFile">Ajouter un fichier</span>
@@ -112,11 +134,16 @@ function saveEditedMessage(message, newText) {
       </button>
       <input v-if="addingFile" type="file" @change="handleFileUpload" accept="image/*" />
     </div>
+
+    </div>
   </div>
+
 </template>
 
 
-<style scoped>
+<style scoped lang="scss">
+@import "../../assets/css/ChatView/Chat.scss";
+
 .chat {
   display: flex;
   flex-direction: column;

@@ -1,5 +1,5 @@
 <script setup>
-import ConversationsList from '../components/ChatView/ConversationsList.vue';
+import ConversationsList from '../components/ChatView/CurrentConversations.vue';
 import {inject, ref, watch} from "vue";
 import {useRoute, useRouter} from "vue-router";
 import ChatComposable from "../composables/ChatComposable.js";
@@ -94,10 +94,8 @@ async function loadConversationData() {
 </script>
 
 <template>
-<main>
-  <div>
-    <ConversationsList></ConversationsList>
-  </div>
+<main class="chat-view">
+  <ConversationsList :conversation-i-d="chatID"></ConversationsList>
   <template v-if="chatID && conversation">
       <Chat :conversation-messages="conversationMessages" :conversation-members="conversationMembers"></Chat>
       <GroupConvDetails :conversation-i-d="conversation.uid" :conversation-title="conversation.groupName" :conversation-members="conversationMembers" :conversation-owners="conversation.ownerID" v-if="!conversationIsPrivate"></GroupConvDetails>

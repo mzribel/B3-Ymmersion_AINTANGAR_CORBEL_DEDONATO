@@ -180,11 +180,18 @@ const ChatComposable = () => {
                     }
                 });
             }
+
             conversations[key].members = members;
+            if (conversations[key].isPrivate) {
+                conversations[key]["otherUser"] = members.filter(member => member.uid != userID)[0];
+            }
+
+
             Object.assign(conversations[key], { isOwner: conversations[key].ownerID == userID });
             Object.assign(conversations[key], { uid: key });
             userConversations.push(conversations[key]);
         }
+        console.log(userConversations)
         return userConversations;
     };
 
