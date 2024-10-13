@@ -56,7 +56,7 @@ async function AddUserToGroup(groupID, email) {
 </script>
 
 <template>
-  <div>
+  <div class="hero-component">
     <h2>Utilisateurs</h2>
     <template v-if="users">
       <ul>
@@ -114,6 +114,8 @@ async function AddUserToGroup(groupID, email) {
   </div>
 </template>
 
-<style scoped>
-
+<style scoped lang="scss">
+.hero-component {
+  width: 100%;
+}
 </style>

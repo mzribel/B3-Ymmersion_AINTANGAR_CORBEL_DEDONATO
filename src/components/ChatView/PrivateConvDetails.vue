@@ -36,33 +36,37 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div v-if="otherUser">
-  <div>
-    <div v-if="conversationMembers && otherUser" class="user-info">
-      <div v-if="otherUser.photoURL" class="pfp" >
-        <img :src="otherUser.photoURL" alt="" height="100px">
+  <div class="group-conv-details-components">
+    <div v-if="otherUser">
+    <div>
+      <div v-if="conversationMembers && otherUser" class="user-info">
+        <div v-if="otherUser.photoURL" class="pfp" >
+          <img :src="otherUser.photoURL" alt="" height="100px">
+        </div>
       </div>
+      <div v-if="otherUser.displayName">
+        <span style="font-size: 28px; font-weight: bold">{{ otherUser.displayName }}</span>
+        <span>({{ otherUser.email }})</span>
+      </div>
+      <div v-else>
+        <span style="font-size: 28px; font-weight: bold">{{ otherUser.email }}</span>
+      </div>
+      Membre depuis le {{ toDate(otherUser.createdAt) }}
     </div>
-    <div v-if="otherUser.displayName">
-      <span style="font-size: 28px; font-weight: bold">{{ otherUser.displayName }}</span>
-      <span>({{ otherUser.email }})</span>
+      <br>
+      <h3>Groupes en commun</h3>
+      <div v-if="commonGroups.length === 0">Pas de groupe en commun !</div>
+      <ul v-else>
+        <li v-for="group in commonGroups"><RouterLink :to="'/chat/'+group.uid">{{ group.groupName }}</RouterLink></li>
+      </ul>
     </div>
-    <div v-else>
-      <span style="font-size: 28px; font-weight: bold">{{ otherUser.email }}</span>
-    </div>
-    Membre depuis le {{ toDate(otherUser.createdAt) }}
-  </div>
-    <br>
-    <h3>Groupes en commun</h3>
-    <div v-if="commonGroups.length === 0">Pas de groupe en commun !</div>
-    <ul v-else>
-      <li v-for="group in commonGroups"><RouterLink :to="'/chat/'+group.uid">{{ group.groupName }}</RouterLink></li>
-    </ul>
-  </div>
-
+</div>
 
 </template>
 
-<style scoped>
-
+<style scoped lang="scss">
+.group-conv-details-components {
+  width: 500px;
+  flex-shrink: 0;
+}
 </style>

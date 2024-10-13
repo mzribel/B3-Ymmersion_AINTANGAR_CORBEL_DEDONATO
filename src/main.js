@@ -5,8 +5,8 @@ import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faSeedling } from "@fortawesome/free-solid-svg-icons"
-library.add(faSeedling)
+import { faList } from "@fortawesome/free-solid-svg-icons"
+library.add(faList)
 const app = createApp(App);
 app.component('font-awesome-icon', FontAwesomeIcon)
 app.use(router);

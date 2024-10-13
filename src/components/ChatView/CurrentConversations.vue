@@ -1,7 +1,15 @@
 <template>
   <div class="current-conversations-component">
-    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Adipisci consequatur dolore eaque fugit iure nihil quasi, qui reprehenderit sunt voluptate!
-    <h1>Chats</h1>
+    <div class="conversation-header">
+      <RouterLink to="/chat">
+        <div class="home-ctn">
+          <font-awesome-icon :icon="['fas', 'list']" class="icon" />
+          <span>Voir tout</span>
+        </div>
+      </RouterLink>
+      <h1>• Chats •</h1>
+    </div>
+
     <div class="conversations-list">
 
     <template v-for="(conversation, key) in orderedConversations" :key="key">

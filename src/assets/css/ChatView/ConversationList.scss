@@ -3,6 +3,30 @@
   min-height: 100%;
   display: flex;
   flex-direction: column;
+  width: 500px;
+  flex-shrink: 0;
+
+  .conversation-header {
+    padding: 20px;
+  }
+}
+
+.home-ctn {
+  border-radius: 5px;
+  border: #30323d solid 1px;
+  min-height: 50px;
+  margin-bottom: 20px;
+  padding: 10px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  font-size: 16px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-weight: 500;
+  .icon {
+    font-size: 24px;
+  }
 }
 
 .conversations-list {

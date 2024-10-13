@@ -7,7 +7,7 @@ import FormatComposable from "../composables/FormatComposable.js";
 const { ToArray } = FormatComposable();
 
 import Chat from "../components/ChatView/Chat.vue";
-import UserList from "../components/ChatView/Hero.vue";
+import Hero from "../components/ChatView/Hero.vue";
 import {getAuth, onAuthStateChanged} from "firebase/auth";
 import {onValue, ref as fbRef} from "firebase/database";
 import {db} from "../firebase.js";
@@ -88,9 +88,7 @@ async function loadConversationData() {
   })
 
   conversationMessages.value = conversationData.messages ? ToArray(conversationData.messages) : [];
-
 }
-
 </script>
 
 <template>
@@ -102,15 +100,14 @@ async function loadConversationData() {
       <PrivateConvDetails :conversation-members="conversationMembers" v-else-if="conversationIsPrivate && conversationMembers"></PrivateConvDetails>
   </template>
   <template v-else>
-    <UserList></UserList>
+    <Hero></Hero>
   </template>
 </main>
 </template>
 
 <style scoped>
 main {
-  display: grid;
-  grid-template-columns: 1fr 50% 1fr;
+  display: flex;
   height: calc(100% - 50px);
   div {
     border: 1px solid black;
