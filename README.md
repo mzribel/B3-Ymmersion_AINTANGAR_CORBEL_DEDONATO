@@ -1,29 +1,24 @@
 # B3-Ymmersion
 
-This template should help get you started developing with Vue 3 in Vite.
+Rendu du projet Ymmersions B3 INFODEV par [Pélagie AINTANGAR](https://github.com/PELAGIE-AINTANGAR), [Marianne CORBEL](https://github.com/mzribel) et [Tony DE DONATO](https://github.com/Tony-De-Donato), dont le but était de réaliser une application web de messagerie instantanée en une semaine.
 
-## Recommended IDE Setup
+**Stack Technologique** :
+- Vue3 + scss
+- Google Firebase (Authentication, RealTime Database & Storage)
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+## Installation du projet
 
-## Customize configuration
-
-See [Vite Configuration Reference](https://vitejs.dev/config/).
-
-## Project Setup
-
+**Installation des dépendances** :
 ```sh
 npm install
 ```
 
-### Compile and Hot-Reload for Development
-
+**Compilation et lancement du serveur de développement** :
 ```sh
 npm run dev
 ``` 
 
-### Compile and Minify for Production
-
+**Compilation et minification à fins de production** :
 ```sh
 npm run build
 ```
