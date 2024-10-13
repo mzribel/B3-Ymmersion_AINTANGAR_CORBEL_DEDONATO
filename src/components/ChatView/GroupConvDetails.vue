@@ -1,7 +1,5 @@
 <template>
-  <div class="group-conv-details-components">
-    <div v-if="conversationMembers">
-
+  <div class="group-conv-details-components" v-if="conversationMembers && groupAdmin">
       <div class="group-profile">
       <div class="user-info">
         <div class="pfp-container">
@@ -14,6 +12,9 @@
         <span class="username">{{ conversationTitle }}</span>
         <span class="email">{{ Object.keys(conversationMembers).length }} membre(s)</span>
       </div>
+    <div class="conv-buttons">
+      <button v-if="groupAdmin.uid == userID" @click="DeleteGroupAndRedirect(conversationID)">Supprimer le groupe</button>
+      <button v-else @click="DeleteUserFromGroupConversation(conversationID, userID)">Quitter le groupe</button></div>
     </div>
     <div class="group-details-ctn">
       <div class="group-details-item">
@@ -39,11 +40,11 @@
             <div class="user-details" v-else>
               <div class="username">{{ groupAdmin.email }}</div>
             </div>
-            <RouterLink v-if="groupAdmin.uid !== userID"><div class="message-icon"><font-awesome-icon :icon="['far', 'envelope']" /></div></RouterLink>
+            <RouterLink to="" v-if="groupAdmin.uid !== userID"><div class="message-icon"><font-awesome-icon :icon="['far', 'envelope']" /></div></RouterLink>
           </div>
         </div>
-            <div v-if="groupAdmin" class="group-details-item">
-        <div class="title">Membres</div>
+        <div class="group-details-item">
+          <div class="title">Membres</div>
           <div class="content profiles">
             <div v-for="member in conversationMembers" class="small-profile">
               <div class="pfp-container">
@@ -59,47 +60,35 @@
               <div class="user-details" v-else>
                 <div class="username">{{ member.email }}</div>
               </div>
-              <RouterLink v-if="member.uid !== userID"><div class="message icon"><font-awesome-icon :icon="['far', 'envelope']" /></div></RouterLink>
-              <div v-if="userID === conversationOwners && userID != member.uid" class="delete icon"><font-awesome-icon :icon="['fas', 'right-from-bracket']" /></div>
+              <div v-if="userID != member.uid" @click="OpenPrivateMessageWithUser(userID, member.uid, router)" class="message icon"><font-awesome-icon :icon="['far', 'envelope']" /></div>
+              <div v-if="userID === conversationOwners && userID != member.uid" @click="DeleteUserFromGroupConversation(conversationID, member.uid)" class="delete icon"><font-awesome-icon :icon="['fas', 'right-from-bracket']" /></div>
             </div>
           </div>
         </div>
-      </div>
-
-      <div v-if="conversationOwners === userID">
-        <form @submit.prevent="RenameGroup(conversationID, newGroupName)">
-          <input v-model="newGroupName" type="text" placeholder="Entrez un nouveau nom" required />
-          <button type="submit">Renommer le groupe</button>
-        </form>
-        <button @click="DeleteGroupAndRedirect(conversationID)">Supprimer le groupe</button>
-      </div>
-      <div v-else><button @click="DeleteUserFromGroupConversation(conversationID, userID)">Quitter le groupe</button></div>
-      <br>
-      <h4>Membres</h4>
-      <ul>
-        <li v-for="member in conversationMembers">
-          <span v-if="member.uid === conversationOwners">👑</span>
-          {{ member.displayName ? member.displayName+" - " : ""}}
-          {{ member.email}}
-
-          <span v-if="conversationOwners && member.uid !== conversationOwners">
-            <button @click="DeleteUserFromGroupConversation(conversationID, member.uid)">Delete</button>
-          </span>
-        </li>
-        <li>
-          <form @submit.prevent="AddUserEmailToGroupConversation(conversationID, newMemberEmail)">
-            <input v-model="newMemberEmail" type="text" placeholder="Entrez une adresse mail" required />
-            <button type="submit">Ajouter au groupe</button>
-          </form>
-        </li>
-      </ul>
+        <div v-if="conversationOwners === userID" class="group-details-item">
+          <div class="title">Ajouter un membre</div>
+          <div class="content">
+            <form @submit.prevent="AddUserEmailToGroupConversation(conversationID, newMemberEmail)">
+              <input v-model="newMemberEmail" type="text" placeholder="Entrez une adresse mail" required />
+              <button type="submit">Ajouter</button>
+            </form>
+          </div>
+        </div>
+        <div v-if="conversationOwners === userID" class="group-details-item">
+          <div class="title">Renommer le groupe</div>
+          <div class="content">
+            <form @submit.prevent="RenameGroup(conversationID, newGroupName)">
+              <input v-model="newGroupName" type="text" placeholder="Entrez un nouveau nom" required />
+              <button type="submit">Renommer</button>
+            </form>
+          </div>
+        </div>
     </div>
   </div>
-
 </template>
 <script setup>
 import ChatComposable from "../../composables/ChatComposable.js";
-const { AddUserEmailToGroupConversation, DeleteUserFromGroupConversation, DeleteGroupConversation, RenameGroup } = ChatComposable();
+const { OpenPrivateMessageWithUser, AddUserEmailToGroupConversation, DeleteUserFromGroupConversation, DeleteGroupConversation, RenameGroup, CreatePrivateConversation } = ChatComposable();
 import {computed, inject, ref} from "vue";
 import {useRouter} from "vue-router";
 
@@ -113,11 +102,13 @@ const DeleteGroupAndRedirect = async (convID) => {
   await router.push("/chat")
 }
 
+
+
 const props = defineProps({
   conversationID: {type: String, required:true},
   conversationTitle: {type: String, required: false},
   conversationMembers: {type: Object, required: true, default: {}},
-  conversationOwners: {type: String, required: false},
+  conversationOwners: {type: String, required: true},
 })
 
 const groupAdmin = computed(()=> {
@@ -126,7 +117,7 @@ const groupAdmin = computed(()=> {
       return props.conversationMembers[key];
     }
   }
-  return null
+  return "";
 })
 
 </script>
@@ -134,6 +125,9 @@ const groupAdmin = computed(()=> {
 <style lang="scss">
 .group-conv-details-components {
   width: 500px;
+  min-height: 100%;
+  max-height: 100%;
+  overflow-y: auto;
   flex-shrink: 0;
 }
 

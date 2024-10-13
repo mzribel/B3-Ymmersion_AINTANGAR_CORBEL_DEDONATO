@@ -32,13 +32,13 @@ onAuthStateChanged(getAuth(), async (u) => {
 })
 
 const router = useRouter()
-async function OpenPrivateMessageWithUser(userID) {
+async function OpenPrivateMessageWithUser(userID, router=null) {
   if (userID == currentUser.value.uid) {
     console.log("On ne peut pas ouvrir un MP avec soi même")
     return;
   }
   const conversationID = await CreatePrivateConversation([currentUser.value.uid, userID]);
-  if (conversationID) {
+  if (conversationID && router) {
     await router.push("/chat/" + conversationID);
   }
 }
@@ -65,7 +65,6 @@ const groupConversationsList = computed(() => {
 const createGroup = async (userID, groupName) => {
   let newGroup = await CreateGroupConversation(userID, groupName);
   if (newGroup) {
-    console.log("push?")
     await router.push("/chat/" + newGroup);
   }
 }
