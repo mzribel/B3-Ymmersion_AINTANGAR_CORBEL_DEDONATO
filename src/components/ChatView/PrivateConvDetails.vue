@@ -8,28 +8,19 @@ const { GetGroupsIncludingUsers } = ChatComposable();
 
 const userID = inject("userID")
 const props = defineProps({
-  conversationMembers: {type: Object, required: true, default: {}}
+  conversationMembers: {type: Object, required: true, default: {}},
+  otherUser: { type: Object, required: false }
 })
 
-const getOtherUser = () => {
-  if (props.conversationMembers) {
-    for (let key of Object.keys(props.conversationMembers)) {
-      if (key != userID.value) {
-        return props.conversationMembers[key];
-      }
-    }
-  }
-  return null;
-}
 watch(() => props.conversationMembers, async () => {
-  otherUser.value = getOtherUser();
+  console.log(props.otherUser)
   commonGroups.value = await GetGroupsIncludingUsers(Object.keys(props.conversationMembers));
 })
-const otherUser = ref();
+
 const commonGroups = ref([])
 
 onMounted(async () => {
-  otherUser.value = getOtherUser();
+  // otherUser.value = getOtherUser();
   commonGroups.value = await GetGroupsIncludingUsers(Object.keys(props.conversationMembers));
 })
 

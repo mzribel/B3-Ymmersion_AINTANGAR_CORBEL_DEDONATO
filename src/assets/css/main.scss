@@ -1,5 +1,9 @@
 @import "variables.scss";
-@import "navbar.scss";
+@import "Navbar.scss";
+@import "ChatView/Chat.scss";
+@import "ChatView/ConversationList.scss";
+@import "ChatView/Hero.scss";
+@import "ChatView/ConvDetails.scss";
 
 * {
   margin: 0;
@@ -17,6 +21,11 @@ body, html, #app {
 
 main {
   height: 100%;
+}
+
+main {
+  display: flex;
+  height: calc(100% - $nav-height);
 }
 
 a {
