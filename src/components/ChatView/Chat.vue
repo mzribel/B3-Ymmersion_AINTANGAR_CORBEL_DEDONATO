@@ -43,12 +43,18 @@ function handleFileUpload(event) {
   const file = event.target.files[0];
   if (file) {
     selectedFile.value = file;
-    console.log('Fichier sélectionné :', file);
+  } else {
+    selectedFile.value = null;
   }
 }
 
+function emptyFile() {
+  selectedFile.value = null;
+}
+
 async function sendMessage() {
-  if (addingFile.value && selectedFile.value) {
+  console.log(selectedFile.value)
+  if (selectedFile.value) {
     const storage = getStorage();
     const fileRef = storageRef(storage, `uploads/${selectedFile.value.name}`);
     const snapshot = await uploadBytes(fileRef, selectedFile.value);
@@ -95,78 +101,85 @@ const scrollToChatBottom = (smooth=false) => {
   <div class="chat-component">
     <div v-if="otherUser" class="chat-header">
 
-    </div>
-    <div v-else class="chat-header">
+      <div class="pfp-container">
+        <div class="pfp">
+          <img src="../../assets/img/user_placeholder.png" alt="">
+        </div>
+      </div>
+      <div class="title">{{ otherUser.displayName ? otherUser.displayName : otherUser.email}}</div>
 
-    </div>
+      </div>
+      <div v-else class="chat-header">
+      <div class="pfp-container">
+          <div class="pfp small left">
+            <img src="../../assets/img/group_placeholder.png" alt="">
+          </div>
+          <div class="pfp small right">
+            <img src="../../assets/img/group_placeholder.png" alt="">
+          </div>
+      </div>
+      <div class="title">{{ conversationTitle ? conversationTitle : "Conversation sans Titre"}}</div>
+
+      </div>
     <div class="chat-content">
+
+
+
       <div class="messages" v-if="conversationMembers && conversationMessages">
         <template v-for="(message, index) in conversationMessages" :key="index">
-          <div class="message" :class="index+1 === conversationMessages.length ? 'latest' : null">
-            <strong>{{ conversationMembers[message.sender] ? conversationMembers[message.sender].email : 'Ancien membre' }}:</strong>
-            <img v-if="message.fileUrl" :src="message.fileUrl" alt="Image" width="100" />
+          <div class="message-ctn" :class="index+1 === conversationMessages.length ? 'latest' : null">
+            <div class="pfp-container">
+            <div class="pfp">
+              <img v-if="conversationMembers[message.sender] && conversationMembers[message.sender].photoURL" :src="conversationMembers[message.sender].photoURL" alt="">
+              <img v-else src="../../assets/img/user_placeholder.png" alt="">
 
-            <template v-if="editingMessage === message.uid">
-              <input v-model="message.text" @keyup.enter="saveEditedMessage(message, message.text)" />
-            </template>
-            <template v-else>
-              {{ message.text }}
-            </template>
+            </div>
+            </div>
+            <div class="message-item">
+              <div class="message-data">
+                <span class="username">{{ conversationMembers[message.sender] ? conversationMembers[message.sender].displayName : 'Ancien membre' }}</span>
+                <span class="date">({{ toDate(message.sentAt) }}{{message.lastEditedAt ? ", édité" : ""}})</span>
+              </div>
+              <div class="message-data-gp">
+                <div v-if="message.text" class="message-content" :class="userID == message.sender ? 'self' : ''">
+                  {{ message.text }}
+                </div>
+                <div v-if="message.fileUrl" class="message-content image" :class="userID == message.sender ? 'self' : ''">
+                  <img v-if="message.fileUrl" :src="message.fileUrl" alt="Image" height="100" />
+                </div>
+                <div class="edit">
+                  <template v-if="editingMessage === message.uid">
+                    <input v-model="message.text" @keyup.enter="saveEditedMessage(message, message.text)" />
+                  </template>
 
-            <template v-if="message.sender == userID">
-              <button v-if="editingMessage === message.uid" @click="saveEditedMessage(message, message.text)">Save</button>
-              <button v-else @click="editMessage(message)">Edit</button>
-              <button @click="DeleteMessageFromConversation(chatID, message.uid, userID)">Delete</button>
-            </template>
+                  <template v-if="message.sender == userID">
+                    <button v-if="editingMessage === message.uid" @click="saveEditedMessage(message, message.text)">Save</button>
+                    <button v-else @click="editMessage(message)">Edit</button>
+                    <button @click="DeleteMessageFromConversation(chatID, message.uid, userID)">Delete</button>
+                  </template>
+                </div>
+              </div>
+            </div>
 
-            <div>Posté à {{ toDate(message.sentAt) }}</div>
-            <div v-if="message.lastEditedAt">Edité à {{ toDate(message.lastEditedAt) }}</div>
           </div>
+
+
         </template>
       </div>
     </div>
-    <div class="chat-input-ctn">
-          <div>
-      <input v-model="newMessage" @keyup.enter="sendMessage" placeholder="Tapez votre message..." />
-      <button @click="addingFile = !addingFile">
-        <span v-if="!addingFile">Ajouter un fichier</span>
-        <span v-else>Annuler l'ajout de fichier</span>
-      </button>
-      <input v-if="addingFile" type="file" @change="handleFileUpload" accept="image/*" />
-    </div>
 
+
+    <div class="chat-footer">
+      <div class="attached-file" v-show="selectedFile">
+        <input id="message-file" type="file" @change="handleFileUpload" accept="image/*" />
+        <div class="icon" @click="emptyFile()"><font-awesome-icon :icon="['fas', 'xmark']" /></div>
+      </div>
+      <div class="chat-input-ctn">
+        <label for="message-file" class="icon"><font-awesome-icon :icon="['fas', 'paperclip']" /></label>
+        <div class="text-area"><input class="chat-area" v-model="newMessage" @keyup.enter="sendMessage" placeholder="Tapez votre message..." /></div>
+        <label class="icon" @click="sendMessage"><font-awesome-icon :icon="['fas', 'paper-plane']" /></label>
+      </div>
     </div>
   </div>
-
 </template>
 
-
-<style scoped lang="scss">
-
-.chat {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-
-}
-
-.messages {
-  flex: 1;
-  overflow-y: auto;
-  margin-bottom: 1rem;
-}
-
-.message {
-  margin: 0.5rem 0;
-}
-
-input {
-  padding: 0.5rem;
-  border: 1px solid #ccc;
-  width: 100%;
-}
-
-button {
-  margin-left: 10px;
-}
-</style>
