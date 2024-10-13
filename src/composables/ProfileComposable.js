@@ -36,7 +36,7 @@ export const profileComposable = (userUid) => {
                 displayName: profile.value.displayName || '',
                 photoURL: profile.value.photoURL || null,
             });
-            alert('Profil mis à jour avec succès !');
+            console.log('Profil mis à jour avec succès');
         } catch (error) {
             errorMessage.value = `Erreur lors de la mise à jour du profil : ${error.message}`;
         }
