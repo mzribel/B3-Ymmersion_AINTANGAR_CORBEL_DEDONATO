@@ -24,6 +24,7 @@ const userID = inject("userID");
 const chatID = ref(route.params.groupId);
 const conversationMessages = ref([]);
 const conversationMembers = ref();
+const conversationTitle = ref("")
 const conversationIsPrivate = ref(false);
 const otherUser = ref({})
 
@@ -44,10 +45,10 @@ watch(() => route.params, async () => {
 })
 
 function createConversationListeners() {
-      onValue(fbRef(db, `conversations/${chatID.value}/members`), async (snapshot) => {
-        loadMembers(snapshot.val()).then(result=> {
-          conversationMembers.value = result;
-        })
+    onValue(fbRef(db, `conversations/${chatID.value}/members`), async (snapshot) => {
+      loadMembers(snapshot.val()).then(result=> {
+        conversationMembers.value = result;
+      })
     });
 
   // Messages
@@ -57,6 +58,7 @@ function createConversationListeners() {
   // Title
     if (!conversation.isPrivate) {
       onValue(fbRef(db, `conversations/${chatID.value}/groupName`), (snapshot) => {
+        conversationTitle.value = snapshot.val();
       });
     }
 
@@ -106,8 +108,8 @@ async function loadConversationData() {
 <main class="chat-view">
   <ConversationsList :conversation-i-d="chatID"></ConversationsList>
   <template v-if="chatID && conversation">
-      <Chat :other-user="otherUser" :conversation-messages="conversationMessages" :conversation-members="conversationMembers"></Chat>
-      <GroupConvDetails :conversation-i-d="conversation.uid" :conversation-title="conversation.groupName" :conversation-members="conversationMembers" :conversation-owners="conversation.ownerID" v-if="!conversationIsPrivate"></GroupConvDetails>
+      <Chat :conversation-title="conversationTitle" :other-user="otherUser" :conversation-messages="conversationMessages" :conversation-members="conversationMembers"></Chat>
+      <GroupConvDetails :conversation-i-d="conversation.uid" :conversation-title="conversationTitle" :conversation-members="conversationMembers" :conversation-owners="conversation.ownerID" v-if="!conversationIsPrivate"></GroupConvDetails>
       <PrivateConvDetails :other-user="otherUser" :conversation-members="conversationMembers" v-else-if="conversationIsPrivate && conversationMembers"></PrivateConvDetails>
   </template>
   <template v-else>

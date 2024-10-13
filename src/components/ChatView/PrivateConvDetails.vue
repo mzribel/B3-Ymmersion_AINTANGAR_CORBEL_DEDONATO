@@ -29,28 +29,42 @@ onMounted(async () => {
 <template>
   <div class="group-conv-details-components">
     <div v-if="otherUser">
-    <div>
+    <div class="group-profile">
       <div v-if="conversationMembers && otherUser" class="user-info">
-        <div v-if="otherUser.photoURL" class="pfp" >
-          <img :src="otherUser.photoURL" alt="" height="100px">
+        <div class="pfp-container">
+          <div class="pfp" >
+            <img v-if="otherUser.photoURL" :src="otherUser.photoURL" alt="" height="100px">
+            <img v-else src="../../assets/img/user_placeholder.png" alt="" height="100px">
+          </div>
         </div>
       </div>
-      <div v-if="otherUser.displayName">
-        <span style="font-size: 28px; font-weight: bold">{{ otherUser.displayName }}</span>
-        <span>({{ otherUser.email }})</span>
+      <div class="user-info" v-if="otherUser.displayName">
+        <span class="username">{{ otherUser.displayName }}</span>
+        <span class="email">{{ otherUser.email }}</span>
       </div>
       <div v-else>
         <span style="font-size: 28px; font-weight: bold">{{ otherUser.email }}</span>
       </div>
-      Membre depuis le {{ toDate(otherUser.createdAt) }}
     </div>
-      <br>
-      <h3>Groupes en commun</h3>
-      <div v-if="commonGroups.length === 0">Pas de groupe en commun !</div>
-      <ul v-else>
-        <li v-for="group in commonGroups"><RouterLink :to="'/chat/'+group.uid">{{ group.groupName }}</RouterLink></li>
-      </ul>
+    <div class="group-details-ctn">
+      <div class="group-details-item">
+        <div class="title">
+        Membre depuis le
+        </div>
+        <div class="content">{{ toDate(otherUser.createdAt) }}</div>
+      </div>
+      <div class="group-details-item">
+        <div class="title">Groupes en commun</div>
+        <template v-if="commonGroups.length === 0">
+          <div class="content empty">Aucun groupe en commun !</div>
+        </template>
+        <div class="content">
+          <li class="underline" v-for="group in commonGroups"><RouterLink :to="'/chat/'+group.uid">{{ group.groupName }}</RouterLink></li>
+        </div>
+      </div>
+
     </div>
+</div>
 </div>
 
 </template>

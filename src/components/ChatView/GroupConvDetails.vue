@@ -1,8 +1,70 @@
 <template>
   <div class="group-conv-details-components">
     <div v-if="conversationMembers">
-      <h2 v-if="conversationTitle">{{ conversationTitle }}</h2>
-      <h2 v-else>Groupe Sans Titre</h2>
+
+      <div class="group-profile">
+      <div class="user-info">
+        <div class="pfp-container">
+          <div class="pfp" >
+            <img src="../../assets/img/group_placeholder.png" alt="" height="100px">
+          </div>
+        </div>
+      </div>
+      <div class="user-info">
+        <span class="username">{{ conversationTitle }}</span>
+        <span class="email">{{ Object.keys(conversationMembers).length }} membre(s)</span>
+      </div>
+    </div>
+    <div class="group-details-ctn">
+      <div class="group-details-item">
+        <div class="title">
+        Crée le
+        </div>
+<!--        TODO: changer la date !-->
+        <div class="content">11/10/2024 18:34:46</div>
+      </div>
+      <div v-if="groupAdmin" class="group-details-item">
+        <div class="title">Administré par</div>
+          <div class="small-profile">
+            <div class="pfp-container">
+              <div class="pfp">
+                <img v-if="groupAdmin.photoURL" :src="groupAdmin.photoURL" alt="">
+                <img v-else src="../../assets/img/user_placeholder.png" alt="">
+              </div>
+            </div>
+            <div class="user-details" v-if="groupAdmin.displayName">
+              <div class="username">{{ groupAdmin.displayName }}</div>
+              <div class="email"> {{ groupAdmin.email }} </div>
+            </div>
+            <div class="user-details" v-else>
+              <div class="username">{{ groupAdmin.email }}</div>
+            </div>
+            <RouterLink v-if="groupAdmin.uid !== userID"><div class="message-icon"><font-awesome-icon :icon="['far', 'envelope']" /></div></RouterLink>
+          </div>
+        </div>
+            <div v-if="groupAdmin" class="group-details-item">
+        <div class="title">Membres</div>
+          <div class="content profiles">
+            <div v-for="member in conversationMembers" class="small-profile">
+              <div class="pfp-container">
+                <div class="pfp">
+                  <img v-if="member.photoURL" :src="member.photoURL" alt="">
+                  <img v-else src="../../assets/img/user_placeholder.png" alt="">
+                </div>
+              </div>
+              <div class="user-details" v-if="member.displayName">
+                <div class="username">{{ member.displayName }}</div>
+                <div class="email"> {{ member.email }} </div>
+              </div>
+              <div class="user-details" v-else>
+                <div class="username">{{ member.email }}</div>
+              </div>
+              <RouterLink v-if="member.uid !== userID"><div class="message icon"><font-awesome-icon :icon="['far', 'envelope']" /></div></RouterLink>
+              <div v-if="userID === conversationOwners && userID != member.uid" class="delete icon"><font-awesome-icon :icon="['fas', 'right-from-bracket']" /></div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <div v-if="conversationOwners === userID">
         <form @submit.prevent="RenameGroup(conversationID, newGroupName)">
@@ -38,7 +100,7 @@
 <script setup>
 import ChatComposable from "../../composables/ChatComposable.js";
 const { AddUserEmailToGroupConversation, DeleteUserFromGroupConversation, DeleteGroupConversation, RenameGroup } = ChatComposable();
-import {inject, ref} from "vue";
+import {computed, inject, ref} from "vue";
 import {useRouter} from "vue-router";
 
 const router = useRouter();
@@ -57,6 +119,16 @@ const props = defineProps({
   conversationMembers: {type: Object, required: true, default: {}},
   conversationOwners: {type: String, required: false},
 })
+
+const groupAdmin = computed(()=> {
+  for (let key of Object.keys(props.conversationMembers)) {
+    if (key == props.conversationOwners) {
+      return props.conversationMembers[key];
+    }
+  }
+  return null
+})
+
 </script>
 
 <style lang="scss">
