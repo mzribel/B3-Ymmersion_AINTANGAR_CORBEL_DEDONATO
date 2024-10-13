@@ -262,6 +262,17 @@ const ChatComposable = () => {
         })
     }
 
+    const OpenPrivateMessageWithUser = async (currentUserID, otherUserID, router=null) => {
+      if (currentUserID == otherUserID) {
+        console.log("On ne peut pas ouvrir un MP avec soi même")
+        return;
+      }
+      const conversationID = await CreatePrivateConversation([currentUserID, otherUserID]);
+      if (conversationID && router) {
+        await router.push("/chat/" + conversationID);
+      }
+    }
+
 
     return {
         GetConversationByID,
@@ -277,7 +288,8 @@ const ChatComposable = () => {
         SendMessageToConversation,
         UpdateMessageInConversation, DeleteMessageFromConversation,
         GetGroupsIncludingUsers,
-        AddUserEmailToGroupConversation
+        AddUserEmailToGroupConversation,
+        OpenPrivateMessageWithUser
     }
 }
 
