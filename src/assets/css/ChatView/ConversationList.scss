@@ -1,53 +1,84 @@
+
+
+.conversations-ctn {
+  padding: 20px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  h1 {
+    margin: 0 20px;
+    font-size: 24px;
+  }
+}
+
 .current-conversations-component {
+  color: white;
   max-height: 100%;
   min-height: 100%;
   display: flex;
   flex-direction: column;
   width: 500px;
   flex-shrink: 0;
+  background-color: $dark-purple;
+  border-right: 2px solid $purple;
 
-  .conversation-header {
+
+  .see-all {
+    height: $component-header-height;
+    border-bottom: 1px solid $medium-purple;
+    font-size: 16px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-weight: 500;
     padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    .icon {
+      font-size: 24px;
+    }
+    opacity: 75%;
+    transition: opacity .2s ease-in;
+    &:hover {
+      opacity: 100%;
+    }
   }
-}
 
-.home-ctn {
-  border-radius: 5px;
-  border: #30323d solid 1px;
-  min-height: 50px;
-  margin-bottom: 20px;
-  padding: 10px;
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  font-size: 16px;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  font-weight: 500;
-  .icon {
-    font-size: 24px;
-  }
+
+
+
 }
 
 .conversations-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
   flex-grow: 1;
+  gap: 1px;
   overflow-y: auto;
-  padding: 0 20px 20px;
 }
 
 .conversation-item {
+  &:first-child {
+    border-top: 1px solid $medium-purple;
+  }
   display: flex;
-  padding: 10px;
-  border: 1px solid black;
-  border-radius: 5px;
+  padding: 20px;
   gap: 10px;
-  background-color: #f6f6f6;
+  border-bottom: 1px solid $medium-purple;
 
   &.selected {
-    background-color: white
+    background-color: $medium-purple;
+    position: relative;
+    &::after {
+      position: absolute;
+      content: "";
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 5px;
+      background-color: $purple;
+    }
   }
 
   .info-container {
@@ -60,8 +91,8 @@
   }
 
   .pfp-container {
-    height: 45px;
-    width: 45px;
+    height: 55px;
+    width: 55px;
     flex-shrink: 0;
     position: relative;
   }

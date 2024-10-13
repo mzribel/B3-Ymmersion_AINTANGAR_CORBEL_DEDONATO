@@ -15,18 +15,15 @@ const props = defineProps({
   conversationTitle: { type: String, required: false },
   conversationMessages: { type: Object, required: true },
   conversationMembers: { type: Object, required: false },
+  otherUser: { type: Object, required: false }
 });
 
-const messages = ref(props.conversationMessages);
 const newMessage = ref('');
-const chatTitle = ref('');
-const members = ref([]);
 const user = inject('user');
 const userID = getAuth().currentUser.uid;
 const addingFile = ref(false);
 const selectedFile = ref(null);
-const editingMessage = ref(null); 
-const lastMessageRef = ref(null)
+const editingMessage = ref(null);
 
 
 watch(() => route.params.groupId, () => {
@@ -96,8 +93,11 @@ const scrollToChatBottom = (smooth=false) => {
 
 <template>
   <div class="chat-component">
-    <div class="chat-header">
-      <h2>Conversation</h2>
+    <div v-if="otherUser" class="chat-header">
+
+    </div>
+    <div v-else class="chat-header">
+
     </div>
     <div class="chat-content">
       <div class="messages" v-if="conversationMembers && conversationMessages">
@@ -142,7 +142,6 @@ const scrollToChatBottom = (smooth=false) => {
 
 
 <style scoped lang="scss">
-@import "../../assets/css/ChatView/Chat.scss";
 
 .chat {
   display: flex;

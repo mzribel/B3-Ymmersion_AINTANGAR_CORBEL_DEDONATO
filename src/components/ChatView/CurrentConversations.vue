@@ -1,63 +1,62 @@
 <template>
   <div class="current-conversations-component">
-    <div class="conversation-header">
       <RouterLink to="/chat">
-        <div class="home-ctn">
+        <div class="see-all">
           <font-awesome-icon :icon="['fas', 'list']" class="icon" />
           <span>Voir tout</span>
         </div>
       </RouterLink>
+
+    <div class="conversations-ctn">
       <h1>• Chats •</h1>
+      <div class="conversations-list">
+        <template v-for="(conversation, key) in orderedConversations" :key="key">
+        <RouterLink :to="`/chat/${conversation.uid}`">
+          <div v-if="conversation.isPrivate" class="conversation-item" :class="conversation.uid == conversationID ? 'selected' : ''">
+            <div class="pfp-container">
+              <div class="pfp">
+                 <img v-if="conversation.otherUser.photoURL" :src="conversation.otherUser.photoURL" alt="">
+                 <img v-else src="../../assets/img/user_placeholder.png" alt="">
+              </div>
+            </div>
+            <div class="info-container">
+              <div class="subtitle">
+                <div class="title left single-line-ellipsis">{{ conversation.otherUser.displayName ? conversation.otherUser.displayName : conversation.otherUser.email }}</div>
+                <div class="right" v-if="conversation.lastUpdateAt"> • {{ displayDate(conversation.lastUpdateAt) }}</div>
+              </div>
+            </div>
+          </div>
+          <div v-else class="conversation-item" :class="conversation.uid == conversationID ? 'selected' : ''">
+            <div class="pfp-container">
+              <template v-if="conversation.members.length < 2">
+                <div class="pfp">
+                  <img src="../../assets/img/group_placeholder.png" alt="">
+                </div>
+              </template>
+              <template v-else>
+                <div class="pfp small left">
+                 <img v-if="conversation.members[0].photoURL" :src="conversation.members[0].photoURL" alt="">
+                 <img v-else src="../../assets/img/group_placeholder.png" alt="">
+                </div>
+                <div class="pfp small right">
+                 <img v-if="conversation.members[1].photoURL" :src="conversation.members[1].photoURL" alt="">
+                 <img v-else src="../../assets/img/group_placeholder.png" alt="">
+                </div>
+              </template>
+            </div>
+            <div class="info-container">
+              <div class="title single-line-ellipsis">{{ conversation.groupName }}</div>
+              <div class="subtitle">
+                <div class="left single-line-ellipsis" v-if="conversation.members.length < 2" >{{ conversation.members.length }} membre</div>
+                <div class="left single-line-ellipsis" v-else>{{ conversation.members.length }} membres</div>
+                <div class="right" v-if="conversation.lastUpdateAt"> • {{ displayDate(conversation.lastUpdateAt) }}</div>
+              </div>
+            </div>
+          </div>
+        </RouterLink>
+        </template>
+      </div>
     </div>
-
-    <div class="conversations-list">
-
-    <template v-for="(conversation, key) in orderedConversations" :key="key">
-    <RouterLink :to="`/chat/${conversation.uid}`">
-      <div v-if="conversation.isPrivate" class="conversation-item" :class="conversation.uid == conversationID ? 'selected' : ''">
-        <div class="pfp-container">
-          <div class="pfp">
-             <img v-if="conversation.otherUser.photoURL" :src="conversation.otherUser.photoURL" alt="">
-             <img v-else src="../../assets/img/user_placeholder.png" alt="">
-          </div>
-        </div>
-        <div class="info-container">
-          <div class="subtitle">
-            <div class="title left single-line-ellipsis">{{ conversation.otherUser.displayName ? conversation.otherUser.displayName : conversation.otherUser.email }}</div>
-            <div class="right" v-if="conversation.lastUpdateAt"> • {{ displayDate(conversation.lastUpdateAt) }}</div>
-          </div>
-        </div>
-      </div>
-      <div v-else class="conversation-item" :class="conversation.uid == conversationID ? 'selected' : ''">
-        <div class="pfp-container">
-          <template v-if="conversation.members.length < 2">
-            <div class="pfp">
-              <img src="../../assets/img/group_placeholder.png" alt="">
-            </div>
-          </template>
-          <template v-else>
-            <div class="pfp small left">
-             <img v-if="conversation.members[0].photoURL" :src="conversation.members[0].photoURL" alt="">
-             <img v-else src="../../assets/img/group_placeholder.png" alt="">
-            </div>
-            <div class="pfp small right">
-             <img v-if="conversation.members[1].photoURL" :src="conversation.members[1].photoURL" alt="">
-             <img v-else src="../../assets/img/group_placeholder.png" alt="">
-            </div>
-          </template>
-        </div>
-        <div class="info-container">
-          <div class="title single-line-ellipsis">{{ conversation.groupName }}</div>
-          <div class="subtitle">
-            <div class="left single-line-ellipsis" v-if="conversation.members.length < 2" >{{ conversation.members.length }} membre</div>
-            <div class="left single-line-ellipsis" v-else>{{ conversation.members.length }} membres</div>
-            <div class="right" v-if="conversation.lastUpdateAt"> • {{ displayDate(conversation.lastUpdateAt) }}</div>
-          </div>
-        </div>
-      </div>
-    </RouterLink>
-    </template>
-  </div>
   </div>
 
 </template>
@@ -107,6 +106,3 @@ const displayDate = (seconds) => {
 
 </script>
 
-<style lang="scss">
-@import "../../assets/css/ChatView/ConversationList.scss";
-</style>

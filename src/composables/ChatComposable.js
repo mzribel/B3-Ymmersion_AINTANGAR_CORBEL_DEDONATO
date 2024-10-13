@@ -191,7 +191,6 @@ const ChatComposable = () => {
             Object.assign(conversations[key], { uid: key });
             userConversations.push(conversations[key]);
         }
-        console.log(userConversations)
         return userConversations;
     };
 

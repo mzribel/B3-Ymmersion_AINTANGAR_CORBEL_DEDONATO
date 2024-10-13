@@ -25,6 +25,7 @@ const chatID = ref(route.params.groupId);
 const conversationMessages = ref([]);
 const conversationMembers = ref();
 const conversationIsPrivate = ref(false);
+const otherUser = ref({})
 
 const conversation = ref(null);
 onAuthStateChanged(getAuth(), async (u) => {
@@ -72,6 +73,17 @@ async function loadMembers(memberIDs) {
   return members;
 }
 
+const loadOtherUser = (members) => {
+  if (conversationMembers.value) {
+    for (let key of Object.keys(conversationMembers.value)) {
+      if (key != userID.value) {
+        return conversationMembers.value[key];
+      }
+    }
+  }
+  return null;
+}
+
 async function loadConversationData() {
   if (!chatID.value) { return; }
   let conversationData = await GetConversationByID(chatID.value);
@@ -81,12 +93,11 @@ async function loadConversationData() {
     return;
   }
 
+
   conversation.value = conversationData;
   conversationIsPrivate.value = conversationData.isPrivate;
-  loadMembers(conversation.members).then(result=> {
-    conversationMembers.value = result;
-  })
-
+  conversationMembers.value = await loadMembers(conversationData.members);
+  otherUser.value = conversationData.isPrivate ? loadOtherUser() : null;
   conversationMessages.value = conversationData.messages ? ToArray(conversationData.messages) : [];
 }
 </script>
@@ -95,9 +106,9 @@ async function loadConversationData() {
 <main class="chat-view">
   <ConversationsList :conversation-i-d="chatID"></ConversationsList>
   <template v-if="chatID && conversation">
-      <Chat :conversation-messages="conversationMessages" :conversation-members="conversationMembers"></Chat>
+      <Chat :other-user="otherUser" :conversation-messages="conversationMessages" :conversation-members="conversationMembers"></Chat>
       <GroupConvDetails :conversation-i-d="conversation.uid" :conversation-title="conversation.groupName" :conversation-members="conversationMembers" :conversation-owners="conversation.ownerID" v-if="!conversationIsPrivate"></GroupConvDetails>
-      <PrivateConvDetails :conversation-members="conversationMembers" v-else-if="conversationIsPrivate && conversationMembers"></PrivateConvDetails>
+      <PrivateConvDetails :other-user="otherUser" :conversation-members="conversationMembers" v-else-if="conversationIsPrivate && conversationMembers"></PrivateConvDetails>
   </template>
   <template v-else>
     <Hero></Hero>
@@ -106,12 +117,5 @@ async function loadConversationData() {
 </template>
 
 <style scoped>
-main {
-  display: flex;
-  height: calc(100% - 50px);
-  div {
-    border: 1px solid black;
-    height: 100%;
-  }
-}
+
 </style>

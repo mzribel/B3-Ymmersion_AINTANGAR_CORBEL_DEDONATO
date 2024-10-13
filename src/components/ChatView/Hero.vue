@@ -64,7 +64,6 @@ const groupConversationsList = computed(() => {
 
 const createGroup = async (userID, groupName) => {
   let newGroup = await CreateGroupConversation(userID, groupName);
-  console.log(newGroup)
   if (newGroup) {
     console.log("push?")
     await router.push("/chat/" + newGroup);
@@ -121,10 +120,3 @@ const createGroup = async (userID, groupName) => {
   </div>
 </template>
 
-<style lang="scss">
-@import "../../assets/css/ChatView/ConversationList.scss";
-
-.hero-component {
-  width: 100%;
-}
-</style>
