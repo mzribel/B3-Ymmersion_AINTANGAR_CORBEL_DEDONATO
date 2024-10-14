@@ -30,7 +30,7 @@ const auth = getAuth();
 const login = () => {
   signInWithEmailAndPassword(auth, email.value, password.value)
       .then(() => {
-        router.push('/');
+        router.push('/chat');
       })
       .catch(error => {
         console.log(error.code);
@@ -47,7 +47,7 @@ const loginWithGoogle = async () => {
       await CreateUserData(result, result.user.displayName);
     }
 
-    router.push('/');
+    await router.push('/chat');
   } catch (error) {
     console.log(error.code);
     alert(error.message);

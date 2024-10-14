@@ -1,6 +1,6 @@
 <template>
-  <main>
-    <h1>Register</h1>
+  <div class="login-container">
+          <h2>Register</h2>
 
     <p><input type="text" placeholder="Pseudo" v-model="displayName" /></p>
 
@@ -19,7 +19,7 @@
     <p><button @click="registerWithGoogle">Register with Google</button></p>
 
     <p><RouterLink to="/login">Already have an account?</RouterLink></p>
-  </main>
+</div>
 </template>
 
 <script setup>
@@ -46,9 +46,9 @@ watch([password, confirmPassword], () => {
 const registerWithEmail = () => {
 
   createUserWithEmailAndPassword(auth, email.value, password.value)
-      .then((data) => {
-        CreateUserData(data, displayName.value);
-        router.push('/');
+      .then(async (data) => {
+        await CreateUserData(data, displayName.value);
+        await router.push('/chat');
       })
       .catch((error) => {
         console.log(error.code);
@@ -59,10 +59,10 @@ const registerWithEmail = () => {
 const registerWithGoogle = () => {
   const provider = new GoogleAuthProvider();
   signInWithPopup(auth, provider)
-      .then((result) => {
-        CreateUserData(result, result.user.displayName);
+      .then(async (result) => {
+        await CreateUserData(result, result.user.displayName);
 
-        router.push('/');
+        await router.push('/chat');
       })
       .catch((error) => {
         console.log(error.code);
@@ -73,8 +73,39 @@ const registerWithGoogle = () => {
 </script>
 
 <style scoped>
+
 .error-message {
   color: red;
   font-weight: bold;
+}
+.login-container {
+  width: 300px;
+  margin: 100px auto;
+  text-align: center;
+}
+
+input {
+  display: block;
+  width: 100%;
+  margin: 10px 0;
+  padding: 10px;
+}
+
+button {
+  margin: 10px 0;
+  padding: 10px;
+  width: 100%;
+}
+
+.forgot-pswd-btn {
+  background-color: transparent;
+  margin-bottom: 10px;
+  padding: 0;
+  border: none;
+  color: blue;
+  cursor: pointer;
+  border-bottom: 1px solid black;
+  text-align: right;
+  width: fit-content;
 }
 </style>

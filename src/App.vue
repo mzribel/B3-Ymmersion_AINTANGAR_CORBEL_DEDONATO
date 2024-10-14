@@ -11,7 +11,7 @@ import { getAuth, onAuthStateChanged } from "firebase/auth";
 import ChatComposable from "./composables/ChatComposable.js";
 import FormatComposable from "./composables/FormatComposable.js";
 
-const { GetCurrentUserData } = UserComposable();
+const { GetUserByID } = UserComposable();
 const { GetGroupsIncludingUsers } = ChatComposable();
 const { ToArray } = FormatComposable();
 const userData = ref();
@@ -20,10 +20,8 @@ const loading = ref(true);
 provide("userID", userID)
 provide("user", userData)
 
-const auth = getAuth();
-onAuthStateChanged(auth, async (u) => {
+onAuthStateChanged(getAuth(), async (u) => {
   if (u) {
-    userData.value = await GetCurrentUserData(u.uid);
     userID.value = u.uid;
   } else {
     userData.value = null;

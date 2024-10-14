@@ -1,0 +1,40 @@
+.all-users-component {
+  height: 100%;
+  max-height: 100%;
+  min-height: 100%;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  flex: 1;
+  width: 450px;
+  max-width: 450px;
+  background-color: $lighter-gray;
+  border-left: 1px solid $gray;
+  overflow-y: auto;
+
+  .header {
+    padding: 20px;
+    border-bottom: 1px solid $gray;
+  }
+
+  h2 {
+    margin: 0 20px;
+    font-size: 24px;
+    margin: 0;
+  }
+
+}
+
+.all-users {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px;
+
+  .pfp-container {
+    height: 50px;
+    width: 50px;
+  }
+  .username {
+    font-size: 18px;
+  }
+}

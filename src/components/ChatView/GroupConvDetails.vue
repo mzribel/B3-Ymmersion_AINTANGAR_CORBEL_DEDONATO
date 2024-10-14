@@ -14,7 +14,7 @@
       </div>
     <div class="conv-buttons">
       <button v-if="groupAdmin.uid == userID" @click="DeleteGroupAndRedirect(conversationID)">Supprimer le groupe</button>
-      <button v-else @click="DeleteUserFromGroupConversation(conversationID, userID)">Quitter le groupe</button></div>
+      <button v-else @click="LeaveGroupAndRedirect(conversationID, userID)">Quitter le groupe</button></div>
     </div>
     <div class="group-details-ctn">
       <div class="group-details-item">
@@ -102,7 +102,10 @@ const DeleteGroupAndRedirect = async (convID) => {
   await router.push("/chat")
 }
 
-
+const LeaveGroupAndRedirect = async (convID, memberID) => {
+  await DeleteUserFromGroupConversation(convID, memberID);
+  await router.push("/chat")
+}
 
 const props = defineProps({
   conversationID: {type: String, required:true},
