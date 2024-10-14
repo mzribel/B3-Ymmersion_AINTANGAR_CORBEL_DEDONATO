@@ -6,6 +6,8 @@ Rendu du projet Ymmersions B3 INFODEV par [Pélagie AINTANGAR](https://github.co
 - Vue3 + scss
 - Google Firebase (Authentication, RealTime Database & Storage)
 
+![](https://cdn.discordapp.com/attachments/1291304347849986079/1295228906890330214/telechargement_1.png?ex=670de36b&is=670c91eb&hm=c7a8e7a167d931735e3df0a1e482a41921dd6ae06618b1a97026bc16c85ba493&)
+
 ## Installation du projet
 
 **Installation des dépendances** :
