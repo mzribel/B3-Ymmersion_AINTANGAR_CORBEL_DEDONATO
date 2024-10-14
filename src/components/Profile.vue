@@ -7,13 +7,14 @@
         <div class="pfp-container">
           <div v-if="isModifying" class="pfp-div">
             <label for="profile-pic-input" class="clickable-pfp-label">
-              <img :src="profile.photoURL || defaultPhoto" alt="Photo de profil" class="pfp-img img-modifiable" />
+              <img v-if="profile.photoURL" :src="profile.photoURL" alt="Photo de profil" class="pfp-img img-modifiable" />
+              <img v-else src="../assets/img/user_placeholder.png" alt="" class="pfp-img img-modifiable" />
             </label>
             <input id="profile-pic-input" type="file" accept="image/*" @change="onFileChange" class="file-input" />
           </div>
           <div v-else>
-            <img :src="profile.photoURL || defaultPhoto" alt="Photo de profil" class="pfp-img" />
-          </div>
+              <img v-if="profile.photoURL" :src="profile.photoURL" alt="Photo de profil" class="pfp-img" />
+              <img v-else src="../assets/img/user_placeholder.png" alt="" class="pfp-img">          </div>
         </div>
 
         <div class="display-name-div">
@@ -86,12 +87,15 @@ const onFileChange = (event) => {
 };
 </script>
 
-<style scoped>
-
+<style scoped lang="scss">
+@import "../assets/css/variables.scss";
 
 .profile-card {
-  background: rgb(244, 244, 244);
-  border-radius: 12px;
+  position: relative;
+  right: 35px;
+  background: $lighter-gray;
+  border-radius: 5px;
+  border: 1px solid $gray;
   padding: 20px;
   box-shadow: 0 12px 12px rgba(0, 0, 0, 0.2);
   width: 300px;
@@ -116,7 +120,6 @@ h3 {
   object-fit: cover;
   border-radius: 50%;
   border: 4px solid #e0e0e0;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease;
 }
 

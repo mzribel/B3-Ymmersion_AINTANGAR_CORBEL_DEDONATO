@@ -1,6 +1,6 @@
 <script setup>
 import ConversationsList from '../components/ChatView/CurrentConversations.vue';
-import {inject, ref, watch} from "vue";
+import {inject, onMounted, ref, watch} from "vue";
 import {useRoute, useRouter} from "vue-router";
 import ChatComposable from "../composables/ChatComposable.js";
 import FormatComposable from "../composables/FormatComposable.js";
@@ -14,12 +14,14 @@ import {db} from "../firebase.js";
 import UserComposable from "../composables/UserComposable.js";
 import GroupConvDetails from "../components/ChatView/GroupConvDetails.vue";
 import PrivateConvDetails from "../components/ChatView/PrivateConvDetails.vue";
+import AllUsers from "../components/ChatView/AllUsers.vue";
 const { GetConversationByID } = ChatComposable();
 const { GetUserByID } = UserComposable();
 
 const route = useRoute();
 const router = useRouter();
 
+const user = inject("user");
 const userID = inject("userID");
 const chatID = ref(route.params.groupId);
 const conversationMessages = ref([]);
@@ -34,6 +36,10 @@ onAuthStateChanged(getAuth(), async (u) => {
       await loadConversationData();
       createConversationListeners();
   };
+})
+
+onMounted(async()=>{
+   user.value = await GetUserByID(userID.value)
 })
 
 watch(() => route.params, async () => {
@@ -114,6 +120,7 @@ async function loadConversationData() {
   </template>
   <template v-else>
     <Hero></Hero>
+    <AllUsers></AllUsers>
   </template>
 </main>
 </template>

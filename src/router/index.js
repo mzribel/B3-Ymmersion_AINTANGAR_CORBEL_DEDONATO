@@ -2,7 +2,6 @@ import { createRouter, createWebHistory } from 'vue-router';
 import { getAuth } from 'firebase/auth';
 import ChatView from '../views/ChatView.vue';
 import LoginView from '../views/LoginView.vue';
-import MainView from "../views/MainView.vue";
 import LogoutView from "../views/LogoutView.vue";
 import RegisterView from "../views/RegisterView.vue";
 import UserComposable from "../composables/UserComposable.js";
@@ -15,11 +14,12 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: MainView,
-      beforeEnter: (async (to, from)=> {
-        const currentUser = await GetAsyncUser();
-        if (!currentUser) { return "/login" }
-      })
+      redirect: to => {
+      // the function receives the target route as the argument
+      // a relative location doesn't start with `/`
+      // or { path: 'profile'}
+      return 'chat'
+    }
     },
     {
       path: '/login',
@@ -27,7 +27,7 @@ const router = createRouter({
       component: LoginView,
       beforeEnter: (to, from) => {
         if (getAuth().currentUser) {
-          return '/';
+          return '/chat';
         }
       }
     },
@@ -37,7 +37,7 @@ const router = createRouter({
       component: RegisterView,
       beforeEnter: (to, from) => {
         if (getAuth().currentUser) {
-          return '/';
+          return '/chat';
         }
       }
     },
@@ -54,7 +54,6 @@ const router = createRouter({
         const currentUser = await GetAsyncUser();
         if (!currentUser) { return "/login" }
       })
-
     },
     {
       path: '/chat/:groupId',

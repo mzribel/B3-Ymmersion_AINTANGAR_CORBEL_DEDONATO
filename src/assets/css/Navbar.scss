@@ -1,5 +1,5 @@
 header {
-  height: 50px;
+  height: $nav-height;
   background-color: $darker-purple;
   color: white;
   padding: 0 20px;
@@ -12,5 +12,6 @@ nav {
   .left, .right {
     display: flex;
     gap: 30px;
+    align-items: center;
   }
 }

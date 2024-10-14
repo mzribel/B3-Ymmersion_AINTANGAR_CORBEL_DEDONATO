@@ -83,7 +83,7 @@ const props = defineProps({
 
 onAuthStateChanged(getAuth(), async (u) => {
   onValue(fbRef(db, "conversations/"), async () => {
-    conversationList.value = await GetUserConversations(u.uid);
+    conversationList.value = await GetUserConversations(userID.value);
   })
 })
 

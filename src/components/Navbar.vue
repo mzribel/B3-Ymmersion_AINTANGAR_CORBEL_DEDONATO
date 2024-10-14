@@ -15,9 +15,8 @@ const toggleUserMenu = () => {
 <template>
   <header>
     <nav>
-      <div class="left">
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/chat">Chat</RouterLink>
+      <div class="left" style="cursor: default">
+        Ymmersion B3 INFODEV ♥
       </div>
       <div class="right">
         <template v-if="!user">
@@ -27,9 +26,9 @@ const toggleUserMenu = () => {
 
         <template v-else>
           <button class="user-profile-btn" @click="toggleUserMenu">
-            <img :src="user.photoURL" alt="user photo" />
+            <img v-if="user.photoURL" :src="user.photoURL" alt="Photo de profil"/>
+            <img v-else src="../assets/img/user_placeholder.png" alt=""  />
           </button> <div v-if="isProfileMenuOpen" class="profile-menu">
-            test
             <Profile :userUid="user.uid" />
           </div>
           <RouterLink v-if="user" to="/logout">Logout</RouterLink>
@@ -56,7 +55,7 @@ const toggleUserMenu = () => {
 }
 
 .user-profile-btn img {
-  width: 40px;
+  aspect-ratio: 1;
   height: 40px;
   border-radius: 50%;
 }

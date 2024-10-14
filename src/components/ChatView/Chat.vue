@@ -53,7 +53,6 @@ function emptyFile() {
 }
 
 async function sendMessage() {
-  console.log(selectedFile.value)
   if (selectedFile.value) {
     const storage = getStorage();
     const fileRef = storageRef(storage, `uploads/${selectedFile.value.name}`);

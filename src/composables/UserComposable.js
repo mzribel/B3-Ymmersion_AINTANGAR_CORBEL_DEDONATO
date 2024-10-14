@@ -14,7 +14,7 @@ const UserComposable = () => {
         const userRef = ref(db, `users/${uid}`);
         set(userRef, {
             createdAt: Date.now(),
-            displayName: displayName ? displayName : "anonyme",
+            displayName: displayName ? displayName : "",
             email: email,
             uid: data.user.uid
         }).then();
@@ -55,7 +55,6 @@ const UserComposable = () => {
         if (!userID) {
             return null;
         }
-        ;
         const userRef = ref(db, `users/${userID}`);
         return (await get(userRef)).val();
     }
@@ -81,7 +80,7 @@ const UserComposable = () => {
     }
 
 
-    return { GetAllUsers, GetUserByID, CreateUserData, GetCurrentUser, GetCurrentUserData: GetUserByID, GetAsyncUser, GetUserByEmail, CheckUserExists };
+    return { GetAllUsers, GetUserByID, CreateUserData, GetCurrentUser, GetAsyncUser, GetUserByEmail, CheckUserExists };
 
 }
 export default UserComposable;

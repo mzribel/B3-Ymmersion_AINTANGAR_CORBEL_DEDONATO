@@ -1,7 +1,9 @@
 <script setup>
 import UserComposable from "../../composables/UserComposable.js";
 import ChatComposable from "../../composables/ChatComposable.js";
-const { GetCurrentUserData, GetAllUsers, GetUserByEmail } = UserComposable();
+import FormatComposable from "../../composables/FormatComposable.js";
+const { GetAllUsers, GetUserByEmail } = UserComposable();
+const { toDate } = FormatComposable();
 const { RenameGroup, DeleteUserFromGroupConversation, AddUserToGroupConversation, DeleteGroupConversation, CreatePrivateConversation, CreateGroupConversation, GetUserConversations } = ChatComposable();
 import {computed, inject, ref} from "vue";
 import {useRoute, useRouter} from "vue-router";
@@ -19,12 +21,8 @@ const userID = inject("userID");
 const newGroupName = ref("");
 
 onAuthStateChanged(getAuth(), async (u) => {
-  conversationList.value = await GetUserConversations(u.uid);
-  users.value = await GetAllUsers();
-
-
   onValue(fbRef(db, "conversations/"), async () => {
-    conversationList.value = await GetUserConversations(u.uid);
+    conversationList.value = await GetUserConversations(userID.value);
   })
   onValue(fbRef(db, "users/"), async () => {
     users.value = await GetAllUsers();
@@ -32,16 +30,6 @@ onAuthStateChanged(getAuth(), async (u) => {
 })
 
 const router = useRouter()
-async function OpenPrivateMessageWithUser(userID, router=null) {
-  if (userID == currentUser.value.uid) {
-    console.log("On ne peut pas ouvrir un MP avec soi même")
-    return;
-  }
-  const conversationID = await CreatePrivateConversation([currentUser.value.uid, userID]);
-  if (conversationID && router) {
-    await router.push("/chat/" + conversationID);
-  }
-}
 
 async function AddUserToGroup(groupID, email) {
   let userID = await GetUserByEmail(email);
@@ -69,53 +57,69 @@ const createGroup = async (userID, groupName) => {
   }
 }
 
+const sortedGroups = computed(() => {
+  if (!groupConversationsList.value) { return null;}
+  return groupConversationsList.value.sort((a, b) => {
+        if (a.groupName < b.groupName) return -1;
+        else if (b.groupName < a.groupName) return 1;
+        return 0;
+      })
+})
+
 </script>
 
 <template>
-  <div class="hero-component">
-    <div class="groups-ctn">
-      <h1>• Mes groupes •</h1>
-      <div v-if="!groupConversationsList || !groupConversationsList.length">
-        <span>Pas de groupe !</span>
-      </div>
-      <div v-else>
-        <template v-for="conv in conversationList">
-          <div v-if="!conv.isPrivate"  run devstyle="padding: 15px 0 20px; border: 1px solid black; border-width: 1px 0">
-            <RouterLink :to="'/chat/'+conv.uid"><h3>>>> {{ conv.groupName ? conv.groupName : "Groupe Sans Titre"}}</h3></RouterLink>
-            <div v-if="conv.isOwner">
-              <button @click="DeleteGroupConversation(conv.uid)">Supprimer le groupe</button>
-            </div>
-            <div v-else><button @click="DeleteUserFromGroupConversation(conv.uid, userID)">Quitter le groupe</button></div>
-            <span>{{ conv.members.length}} membre(s)</span>
-            <span v-if="conv.messages">, {{ Object.keys(conv.messages).length }} message(s)</span>
-            <span v-else>0 message</span>
+  <div v-if="user" class="hero-component">
+    <section class="current-user">
+      <div class="pfp-container">
+          <div class="pfp">
+             <img v-if="!user.photoURL" src="../../assets/img/user_placeholder.png" alt="">
+              <img v-else :src="user.photoURL" alt="">
           </div>
-        </template>
+      </div>
+      <div class="right">
+        <h1>Bienvenue, <span>{{ user.displayName }}</span> !</h1>
+        <span class="subtitle">{{ user.email }}</span><br>
+        <span class="subtitle">Membre depuis aujourd'hui</span>
+      </div>
+    </section>
+
+    <section class="groups">
+    <div class="group-details-ctn">
+      <div class="group-details-item">
+        <div class="title">Créer un nouveau groupe</div>
+        <div class="content">
+          <form @submit.prevent="createGroup(user.uid, groupName)">
+            <input v-model="groupName" type="text" placeholder="Entrez un nouveau nom" required />
+            <button type="submit">Créer</button>
+          </form>
+        </div>
+      </div>
+      <div class="group-details-item">
+        <div class="title">Mes groupes</div>
+        <div v-if="!sortedGroups" class="content empty">
+          Pas de groupe à afficher !
+        </div>
+        <div v-else class="group-ctn">
+          <template v-for="group in sortedGroups">
+            <RouterLink :to="'/chat/'+group.uid">
+              <div class="group-item" >
+                <div class="group-title">{{ group.groupName}}</div>
+                <div class="group-details">
+                  <span>{{ group.members.length}} membre(s)
+                  <template v-if="group.messages">{{ Object.keys(group.messages).length }} message(s)</template>
+                  <template v-else>0 message</template></span>
+                  <span>Dernière activité le {{ toDate( group.lastUpdateAt)}}</span>
+                </div>
+              </div>
+            </RouterLink>
+          </template>
+        </div>
       </div>
     </div>
-    <div class="group-creation-ctn">
-      <h1>• Créer un groupe •</h1>
-      <form @submit.prevent="createGroup(user.uid, groupName)">
-        <input v-model="groupName" type="text" placeholder="Nom du groupe" required />
-        <button type="submit">Créer</button>
-      </form>
-    </div>
-
-    <div class="all-users-ctn">
-      <h1>• Tous les utilisateurs •</h1>
-    <template v-if="users">
-      <ul>
-        <template v-for="user in users" :key="user.uid">
-          <li v-if="user.uid != userID">
-            {{ user.email }}
-            <button @click="OpenPrivateMessageWithUser(user.uid)">Envoyer un MP</button>
-          </li>
-        </template>
-      </ul>
-    </template>
+    </section>
 
 
-          </div>
   </div>
 </template>
 

@@ -13,7 +13,6 @@ const props = defineProps({
 })
 
 watch(() => props.conversationMembers, async () => {
-  console.log(props.otherUser)
   commonGroups.value = await GetGroupsIncludingUsers(Object.keys(props.conversationMembers));
 })
 
