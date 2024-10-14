@@ -4,9 +4,10 @@
     <form @submit.prevent="login">
       <input v-model="email" type="email" placeholder="Email" required />
       <input v-model="password" type="password" placeholder="Mot de passe" required />
-      <button @click="forgotPassword" class="forgot-pswd-btn">J'ai oublié mon mot de passe</button>
       <button type="submit">Se connecter</button>
+
     </form>
+    <div @click="forgotPassword" class="forgot-pswd-btn">J'ai oublié mon mot de passe</div>
 
     <button @click="loginWithGoogle">Se connecter avec Google</button>
 
@@ -91,14 +92,12 @@ button {
 }
 
 .forgot-pswd-btn {
-  background-color: transparent;
-  margin-bottom: 10px;
+  text-decoration: underline;
+  margin: 10px 0;
+  text-underline-offset: 4px;
   padding: 0;
-  border: none;
-  color: blue;
+  color: #7c06e3;
   cursor: pointer;
-  border-bottom: 1px solid black;
-  text-align: right;
-  width: fit-content;
+  text-align: center;
 }
 </style>
